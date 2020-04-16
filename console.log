@@ -1,0 +1,16 @@
+[main] INFO org.apache.camel.support.LRUCacheFactory - Detected and using LURCacheFactory: camel-caffeine-lrucache
+[main] INFO org.apache.camel.impl.engine.DefaultManagementStrategy - JMX is enabled
+[main] INFO org.apache.camel.impl.engine.AbstractCamelContext - Apache Camel 3.2.0 (CamelContext: camel-1) is starting
+[main] INFO org.apache.camel.component.file.FileEndpoint - Endpoint is configured with noop=true so forcing endpoint to be idempotent as well
+[main] INFO org.apache.camel.component.file.FileEndpoint - Using default memory based idempotent repository with cache max size: 1000
+[main] INFO org.apache.camel.impl.engine.DefaultStreamCachingStrategy - StreamCaching in use with spool directory: /tmp/camel/camel-tmp-ID-bhavesh-1587042724067-0-1 and rules: [Spool > 128K body size]
+[main] INFO org.apache.camel.impl.engine.AbstractCamelContext - Route: route1 started and consuming from: file:///home/cuelogic.local/bhavesh.furia/input
+[main] INFO org.apache.camel.impl.engine.AbstractCamelContext - Total 1 routes, of which 1 are started
+[main] INFO org.apache.camel.impl.engine.AbstractCamelContext - Apache Camel 3.2.0 (CamelContext: camel-1) started in 0.093 seconds
+[Camel (camel-1) thread #1 - file:///home/cuelogic.local/bhavesh.furia/input] INFO route1 - Test Message Hello
+[main] INFO org.apache.camel.impl.engine.AbstractCamelContext - Apache Camel 3.2.0 (CamelContext: camel-1) is shutting down
+[main] INFO org.apache.camel.impl.engine.DefaultShutdownStrategy - Starting to graceful shutdown 1 routes (timeout 45 seconds)
+[Camel (camel-1) thread #2 - ShutdownTask] INFO org.apache.camel.impl.engine.DefaultShutdownStrategy - Route: route1 shutdown complete, was consuming from: file:///home/cuelogic.local/bhavesh.furia/input
+[main] INFO org.apache.camel.impl.engine.DefaultShutdownStrategy - Graceful shutdown of 1 routes completed in 0 seconds
+[main] INFO org.apache.camel.impl.engine.AbstractCamelContext - Apache Camel 3.2.0 (CamelContext: camel-1) uptime 1 minute
+[main] INFO org.apache.camel.impl.engine.AbstractCamelContext - Apache Camel 3.2.0 (CamelContext: camel-1) is shutdown in 0.034 seconds
