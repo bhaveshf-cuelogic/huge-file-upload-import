@@ -8,8 +8,10 @@ public class MainApp {
         CamelContext ctx = new DefaultCamelContext();
         ctx.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
         ctx.addRoutes(routeBuilder);
-        ctx.start();
-        Thread.sleep(1 * 60 * 1000); // don't know why we need to add sleep
-        ctx.stop();
+        while(true) {
+            ctx.start();
+        }
+        //Thread.sleep(1 * 60 * 1000); // don't know why we need to add sleep
+        //ctx.stop();
     }
 }
