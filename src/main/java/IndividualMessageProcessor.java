@@ -1,18 +1,20 @@
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.LoggerFactory;
 
 public class IndividualMessageProcessor implements Processor {
-
 	public void process(Exchange exchange) throws Exception {
-		// TODO Auto-generated method stub
-		String originalFileName = (String) exchange.getIn().getHeader(Exchange.FILE_NAME, String.class);
-		Date date = new Date();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
-		String changedFileName = dateFormat.format(date) +"-"+ originalFileName;
-		exchange.getIn().setHeader(Exchange.FILE_NAME, changedFileName);
+		List<Employee> employees = (List<Employee>) exchange.getIn().getBody();
+		for (Employee employee : employees) {
+			System.out.println("Name---------------"+employee.getFirst_name());
+		}
 	}
 
 }
