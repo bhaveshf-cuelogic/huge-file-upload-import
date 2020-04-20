@@ -13,10 +13,10 @@ public class MainApp {
         ctx.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
 
         ctx.addRoutes(routeBuilder);
-        //while(true) {
+        while(true) {
             ctx.start();
-        //}
-        Thread.sleep(1*60*1000);
-        ctx.stop();
+        }
+        //Thread.sleep(1*60*1000);
+        //ctx.stop();
     }
 }

@@ -11,8 +11,10 @@ public class SimpleRouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
         DataFormat bindy = new BindyCsvDataFormat(Employee.class);
 
-        from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false&delay=3000&recursive=true&preMove=staging&move=.completed")
-        .unmarshal(bindy)
+        from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false")
+        .split(body().tokenize("\n"))
+        .streaming()
+//        .unmarshal(bindy)
         .process(new IndividualMessageProcessor())
         .end();
         //.split(body())

@@ -11,10 +11,11 @@ import org.slf4j.LoggerFactory;
 
 public class IndividualMessageProcessor implements Processor {
 	public void process(Exchange exchange) throws Exception {
-		List<Employee> employees = (List<Employee>) exchange.getIn().getBody();
-		for (Employee employee : employees) {
-			System.out.println("Name---------------"+employee.getFirst_name());
-		}
+		System.out.println("Message = "+exchange.getIn().getBody());
+//		List<Employee> employees = (List<Employee>) exchange.getIn().getBody();
+//		for (Employee employee : employees) {
+//			System.out.println("Name---------------"+employee.getFirst_name());
+//		}
 	}
 
 }
