@@ -19,44 +19,50 @@ public class MainApp {
             @Override
             public void configure() throws Exception {
                 // TODO Auto-generated method stub
-                errorHandler(deadLetterChannel("mock:error"));
+//                errorHandler(deadLetterChannel("mock:error"));
                 BindyCsvDataFormat bindy = new BindyCsvDataFormat();
 
-                from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false").split(body().tokenize("\n"))
-                        .streaming()
-                        // .unmarshal(bindy)
-                        .aggregate(constant(true), new AggregationStrategy() {
-                            //TODO Auto-generated method stub
-                            public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
-                                // TODO Auto-generated method stub
-                                // System.out.println("In aggregate");
-                                Message newIn = newExchange.getIn();
-                                Object newBody = newIn.getBody();
-                                ArrayList list = null;
-                                if (oldExchange == null) {
-                                    list = new ArrayList();
-                                    list.add(newBody);
-                                    newIn.setBody(list);
-                                    return newExchange;
-                                } else {
-                                    Message in = oldExchange.getIn();
-                                    list = in.getBody(ArrayList.class);
-                                    list.add(newBody);
-                                    return oldExchange;
-                                }
-                            }
-                        }).completionSize(6).completionTimeout(2000).process(new Processor() {
-                            // TODO Auto-generated method stub
-                            public void process(Exchange exchange) throws Exception {
-                                // TODO Auto-generated method stub
-                                System.out.println("Reached in process block");
-                                ArrayList batchData = exchange.getIn().getBody(ArrayList.class);
-                                System.out.println("Batch size = " + batchData.size());
-                            }
-                        })
-                        // .to("sql:")
-                        .end();
-//		        from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false").id("csv")
+                from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false")
+                .split(body().tokenize("\n"))
+                .streaming()
+//                .unmarshal(bindy)
+                .aggregate(constant(true), new AggregationStrategy() {
+                    //TODO Auto-generated method stub
+                    public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
+                        // TODO Auto-generated method stub
+                        // System.out.println("In aggregate");
+                        Message newIn = newExchange.getIn();
+                        Object newBody = newIn.getBody();
+                        ArrayList list = null;
+                        if (oldExchange == null) {
+                            list = new ArrayList();
+                            list.add(newBody);
+                            newIn.setBody(list);
+                            return newExchange;
+                        } else {
+                            Message in = oldExchange.getIn();
+                            list = in.getBody(ArrayList.class);
+                            list.add(newBody);
+                            return oldExchange;
+                        }
+                    }
+                })
+                .completionSize(50)
+                .completionTimeout(2000)
+                .process(new Processor() {
+                    // TODO Auto-generated method stub
+                    public void process(Exchange exchange) throws Exception {
+                        // TODO Auto-generated method stub
+                        System.out.println("Reached in process block");
+                        ArrayList batchData = exchange.getIn().getBody(ArrayList.class);
+                        System.out.println("Batch size = " + batchData.size());
+                    }
+                })
+                .to("kafka:test?brokers=localhost:9092")
+//                .to("sql:")
+                .end();
+
+//                from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false").id("csv")
 //		        .onCompletion().log("Processing finished").end()
 //		        .log("Processing data from ${file:name}")
 //		        .split(body().tokenize("\n")).streaming()
