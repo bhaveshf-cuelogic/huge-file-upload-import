@@ -20,13 +20,9 @@ public class V1FileToKafkaInBatch {
             @Override
             public void configure() throws Exception {
                 // TODO Auto-generated method stub
-//                errorHandler(deadLetterChannel("mock:error"));
-                BindyCsvDataFormat bindy = new BindyCsvDataFormat();
-
                 from("file:/home/cuelogic.local/bhavesh.furia/input2?noop=false")
                 .split(body().tokenize("\n"))
                 .streaming()
-//                .unmarshal(bindy)
                 .aggregate(constant(true), new AggregationStrategy() {
                     //TODO Auto-generated method stub
                     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
@@ -60,7 +56,6 @@ public class V1FileToKafkaInBatch {
                     }
                 })
                 .to("kafka:test?brokers=localhost:9092")
-//                .to("sql:")
                 .end();
 
 //                from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false").id("csv")

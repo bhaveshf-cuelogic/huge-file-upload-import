@@ -43,7 +43,6 @@ public class V3ParallelProcessingWithErrorHandling {
                 .streaming()
                 .parallelProcessing()
                 .threads(5)
-//                .unmarshal(bindy)
                 .aggregate(constant(true), new AggregationStrategy() {
                   public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
                       Message newIn = newExchange.getIn();
