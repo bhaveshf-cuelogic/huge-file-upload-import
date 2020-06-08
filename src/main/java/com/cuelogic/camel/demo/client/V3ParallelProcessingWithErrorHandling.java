@@ -29,12 +29,6 @@ public class V3ParallelProcessingWithErrorHandling {
         ds.setPassword("password");
         ctx.getRegistry().bind("camelDs", ds);
         
-        Map repoMap = new HashMap<String, Object>();
-        File fileStore = new File("camel/idempotent-repo.log");
-        final IdempotentRepository repo = new FileIdempotentRepository(fileStore, repoMap);
-
-//        BindyCsvDataFormat bindy = new BindyCsvDataFormat(Sale.class);
-
         ctx.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -74,9 +68,7 @@ public class V3ParallelProcessingWithErrorHandling {
                 })
                 .completionSize(50)
                 .completionTimeout(2000)
-//                .idempotentConsumer(header("CamelFileName"), repo)
                 .to("sql:insert into temp(data) values (:#data)?batch=true")
-//                .parallelProcessing()
                 .end();
             }
         });
