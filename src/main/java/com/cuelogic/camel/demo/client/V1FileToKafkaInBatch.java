@@ -1,3 +1,4 @@
+package com.cuelogic.camel.demo.client;
 import java.util.ArrayList;
 
 import org.apache.camel.AggregationStrategy;
@@ -9,7 +10,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 
-public class MainApp {
+public class V1FileToKafkaInBatch {
 
     public static void main(String[] args) throws Exception {
         CamelContext ctx = new DefaultCamelContext();
@@ -22,7 +23,7 @@ public class MainApp {
 //                errorHandler(deadLetterChannel("mock:error"));
                 BindyCsvDataFormat bindy = new BindyCsvDataFormat();
 
-                from("file:/home/cuelogic.local/bhavesh.furia/input?noop=false")
+                from("file:/home/cuelogic.local/bhavesh.furia/input2?noop=false")
                 .split(body().tokenize("\n"))
                 .streaming()
 //                .unmarshal(bindy)
