@@ -19,15 +19,17 @@ import com.cuelogic.camel.demo.model.Sale;
 
 public class V4BindyDemo {
 
+    private static final String DB_URL = "jdbc:postgresql://localhost:5432/bhaveshdb";
+    private static final String DB_USER = "bhavesh";
+    private static final String DB_PASS = "password";
+    private static final String DB_DRIVER_CLASS_NAME = "org.postgresql.Driver";
+
     public static void main(String[] args) throws Exception {
         CamelContext ctx = new DefaultCamelContext();
         ctx.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
 
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("org.postgresql.Driver");
-        ds.setUrl("jdbc:postgresql://localhost:5432/bhaveshdb");
-        ds.setUsername("bhavesh");
-        ds.setPassword("password");
+        DriverManagerDataSource ds = new DriverManagerDataSource(DB_URL, DB_USER, DB_PASS);
+        ds.setDriverClassName(DB_DRIVER_CLASS_NAME);
         ctx.getRegistry().bind("camelDs", ds);
         
         final DataFormat bindySaleFormat = new BindyCsvDataFormat(Sale.class);
