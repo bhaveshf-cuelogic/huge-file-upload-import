@@ -1,27 +1,20 @@
 package com.cuelogic.camel.demo.client;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.sql.DataSource;
 
 import org.apache.camel.AggregationStrategy;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Message;
-import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.component.sql.SqlComponent;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.processor.aggregate.jdbc.JdbcAggregationRepository;
 import org.apache.camel.spi.AggregationRepository;
 import org.apache.camel.spi.DataFormat;
-import org.apache.camel.spring.spi.SpringTransactionPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -39,6 +32,10 @@ public class V5JdbcRepositoryDemo {
     private static final String DB_PASS = "password";
     private static final String DB_DRIVER_CLASS_NAME = "org.postgresql.Driver";
 
+    private static final String SOURCE_LOCATION = "file:/home/cuelogic.local/bhavesh.furia/camel/input/test_data?noop=true";
+    private static final int AGGREGATION_COMPLETION_SIZE = 1000;
+    private static final int AGGREGATION_COMPLETION_TIMEOUT_MILLISECONDS = 5000;
+
     public static void main(String[] args) throws Exception {
         CamelContext ctx = new DefaultCamelContext();
         ctx.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
@@ -53,7 +50,7 @@ public class V5JdbcRepositoryDemo {
         ctx.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("file:/home/cuelogic.local/bhavesh.furia/camel/input/trimmed/ultra?noop=true")
+                from(SOURCE_LOCATION)
                 //setDeadLetterUri
                 .errorHandler(defaultErrorHandler().redeliveryDelay(5000).maximumRedeliveries(10).retryAttemptedLogLevel(LoggingLevel.ERROR))
                 .split(body().tokenize("\n"))
@@ -98,8 +95,8 @@ public class V5JdbcRepositoryDemo {
                         }
                     }
                   })
-                .completionSize(5)
-                .completionTimeout(2000)
+                .completionSize(AGGREGATION_COMPLETION_SIZE)
+                .completionTimeout(AGGREGATION_COMPLETION_TIMEOUT_MILLISECONDS)
                 .aggregationRepository(getAggregationRepository())
                 .to("sql:insert into sales(region, country, item_type) values (:#region, :#country, :#item_type)?batch=true")
                 .end();
@@ -117,8 +114,6 @@ public class V5JdbcRepositoryDemo {
         DataSourceTransactionManager txManager = new DataSourceTransactionManager(ds);
         // repositoryName (aggregation) must match tableName (aggregation, aggregation_completed)
         JdbcAggregationRepository repo = new JdbcAggregationRepository(txManager, "aggregation", ds);
-        repo.setUseRecovery(false);
-        repo.setStoreBodyAsText(false);
         return (AggregationRepository) repo;
     }
 }
