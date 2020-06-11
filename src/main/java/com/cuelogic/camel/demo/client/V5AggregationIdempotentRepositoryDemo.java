@@ -27,9 +27,9 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import com.cuelogic.camel.demo.model.Sale;
 
-public class V5JdbcRepositoryDemo {
+public class V5AggregationIdempotentRepositoryDemo {
 
-    private static final Logger LOG = LoggerFactory.getLogger(V5JdbcRepositoryDemo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(V5AggregationIdempotentRepositoryDemo.class);
 
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/bhaveshdb";
     private static final String DB_USER = "bhavesh";
@@ -37,26 +37,33 @@ public class V5JdbcRepositoryDemo {
     private static final String DB_DRIVER_CLASS_NAME = "org.postgresql.Driver";
 
     private static final String SOURCE_LOCATION = "file:/home/cuelogic.local/bhavesh.furia/camel/input/test_data?noop=true";
-    private static final int AGGREGATION_COMPLETION_SIZE = 1;
+    private static final int AGGREGATION_COMPLETION_SIZE = 10;
     private static final int AGGREGATION_COMPLETION_TIMEOUT_MILLISECONDS = 5000;
+    
+    private static final int DELAY_IN_MILLISECONDS = 500;
 
     public static void main(String[] args) throws Exception {
-        CamelContext ctx = new DefaultCamelContext();
-        ctx.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
+        CamelContext camel = new DefaultCamelContext();
+        camel.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
 
         DriverManagerDataSource ds = new DriverManagerDataSource(DB_URL, DB_USER, DB_PASS);
         ds.setDriverClassName(DB_DRIVER_CLASS_NAME);
 
-        ctx.getRegistry().bind("camelDs", ds);
+        camel.getRegistry().bind("camelDs", ds);
 
         final DataFormat bindySaleFormat = new BindyCsvDataFormat(Sale.class);
 
-        ctx.addRoutes(new RouteBuilder() {
+        camel.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
                 from(SOURCE_LOCATION)
                 //setDeadLetterUri
-                .errorHandler(defaultErrorHandler().redeliveryDelay(5000).maximumRedeliveries(10).retryAttemptedLogLevel(LoggingLevel.ERROR))
+                .errorHandler(
+                        deadLetterChannel("direct:error")
+                        .redeliveryDelay(5000)
+                        .maximumRedeliveries(5)
+                        .retryAttemptedLogLevel(LoggingLevel.ERROR)
+                        )
                 .split(body().tokenize("\n"))
               //TODO : discard first row of input
                 .streaming()
@@ -71,7 +78,7 @@ public class V5JdbcRepositoryDemo {
                         m.setHeader("uniqueId", s.getRegion());
                     }
                 })
-//                .delay(2000)
+                .delay(DELAY_IN_MILLISECONDS)
                 .aggregate(constant(true), new AggregationStrategy() {
                     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
                         Message newIn = newExchange.getIn();
@@ -105,12 +112,17 @@ public class V5JdbcRepositoryDemo {
                 .completionTimeout(AGGREGATION_COMPLETION_TIMEOUT_MILLISECONDS)
                 .aggregationRepository(getAggregationRepository())
                 .idempotentConsumer(header("uniqueId"), getIdempotentRepository())
+                .log("Processing entry ${header.uniqueId}")
                 .to("sql:insert into sales(region, country, item_type) values (:#region, :#country, :#item_type)?batch=true")
+                .end();
+
+                from("direct:error")
+                .log("Forwarded to DLQ : "+body().toString())
                 .end();
             }
         });
         while (true) {
-            ctx.start();
+            camel.start();
         }
     }
 
