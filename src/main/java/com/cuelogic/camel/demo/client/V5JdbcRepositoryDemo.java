@@ -1,5 +1,6 @@
 package com.cuelogic.camel.demo.client;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,12 +10,15 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.Message;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.processor.aggregate.jdbc.JdbcAggregationRepository;
 import org.apache.camel.spi.AggregationRepository;
 import org.apache.camel.spi.DataFormat;
+import org.apache.camel.spi.IdempotentRepository;
+import org.apache.camel.support.processor.idempotent.FileIdempotentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -33,7 +37,7 @@ public class V5JdbcRepositoryDemo {
     private static final String DB_DRIVER_CLASS_NAME = "org.postgresql.Driver";
 
     private static final String SOURCE_LOCATION = "file:/home/cuelogic.local/bhavesh.furia/camel/input/test_data?noop=true";
-    private static final int AGGREGATION_COMPLETION_SIZE = 1000;
+    private static final int AGGREGATION_COMPLETION_SIZE = 1;
     private static final int AGGREGATION_COMPLETION_TIMEOUT_MILLISECONDS = 5000;
 
     public static void main(String[] args) throws Exception {
@@ -57,15 +61,17 @@ public class V5JdbcRepositoryDemo {
               //TODO : discard first row of input
                 .streaming()
                 .unmarshal(bindySaleFormat)
-//                .process(new Processor() {
-//                    public void process(Exchange exchange) throws Exception {
-//                        // TODO Auto-generated method stub
-//                        Sale s = new Sale();
-//                        s = (Sale)exchange.getIn().getBody();
-//                        System.out.println("------"+s.getCountry());
-//                        exchange.getIn().setHeader("uniqueKey", s.toString());
-//                    }
-//                })
+                .process(new Processor() {
+                    public void process(Exchange exchange) throws Exception {
+                        // TODO Auto-generated method stub
+                        Message m = exchange.getIn();
+                        LOG.info("Body = "+m.getBody());
+                        LOG.info("Message Id = "+m.getMessageId());
+                        Sale s = (Sale)m.getBody();
+                        m.setHeader("uniqueId", s.getRegion());
+                    }
+                })
+//                .delay(2000)
                 .aggregate(constant(true), new AggregationStrategy() {
                     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
                         Message newIn = newExchange.getIn();
@@ -98,6 +104,7 @@ public class V5JdbcRepositoryDemo {
                 .completionSize(AGGREGATION_COMPLETION_SIZE)
                 .completionTimeout(AGGREGATION_COMPLETION_TIMEOUT_MILLISECONDS)
                 .aggregationRepository(getAggregationRepository())
+                .idempotentConsumer(header("uniqueId"), getIdempotentRepository())
                 .to("sql:insert into sales(region, country, item_type) values (:#region, :#country, :#item_type)?batch=true")
                 .end();
             }
@@ -115,5 +122,11 @@ public class V5JdbcRepositoryDemo {
         // repositoryName (aggregation) must match tableName (aggregation, aggregation_completed)
         JdbcAggregationRepository repo = new JdbcAggregationRepository(txManager, "aggregation", ds);
         return (AggregationRepository) repo;
+    }
+
+    private static IdempotentRepository getIdempotentRepository() {
+        Map repoMap = new HashMap<String, Object>();
+        File fileStore = new File("camel/idempotent-repo.log");
+        return new FileIdempotentRepository(fileStore, repoMap);
     }
 }
