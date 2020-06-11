@@ -56,16 +56,15 @@ public class V5AggregationIdempotentRepositoryDemo {
         camel.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(SOURCE_LOCATION)
-                //setDeadLetterUri
-                .errorHandler(
+                errorHandler(
                         deadLetterChannel("direct:error")
                         .redeliveryDelay(5000)
                         .maximumRedeliveries(5)
-                        .retryAttemptedLogLevel(LoggingLevel.ERROR)
-                        )
+                        .retryAttemptedLogLevel(LoggingLevel.ERROR));
+
+                from(SOURCE_LOCATION)
                 .split(body().tokenize("\n"))
-              //TODO : discard first row of input
+                //TODO : discard first row of input
                 .streaming()
                 .unmarshal(bindySaleFormat)
                 .process(new Processor() {

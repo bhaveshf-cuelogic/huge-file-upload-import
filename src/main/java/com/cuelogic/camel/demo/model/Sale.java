@@ -8,10 +8,10 @@ public class Sale {
 
     @DataField(pos = 1)
     String Region;
-    
+
     @DataField(pos = 2, required = false)
     String Country;
-    
+
     @DataField(pos = 3, required = false)
     String Item_Type;
 
@@ -20,34 +20,45 @@ public class Sale {
 
     @DataField(pos = 5, required = false)
     String Order_Priority;
-    
+
     @DataField(pos = 6, required = false)
     String Order_Date;
-    
+
     @DataField(pos = 7, required = false)
     String Order_ID;
-    
+
     @DataField(pos = 8, required = false)
     String Ship_Date;
-    
+
     @DataField(pos = 9, required = false)
     String Units_Sold;
-    
+
     @DataField(pos = 10, required = false)
     String Unit_Price;
-    
+
     @DataField(pos = 11, required = false)
     String Unit_Cost;
-    
+
     @DataField(pos = 12, required = false)
     String Total_Revenue;
-    
+
     @DataField(pos = 13, required = false)
     String Total_Cost;
-    
+
     @DataField(pos = 14, required = false)
     String Total_Profit;
-    
+
+    @DataField(pos = 15, required = false)
+    String Total_Profit2;
+
+    public String getTotal_Profit2() {
+        return Total_Profit2;
+    }
+
+    public void setTotal_Profit2(String total_Profit2) {
+        Total_Profit2 = total_Profit2;
+    }
+
     public String getRegion() {
         return Region;
     }
