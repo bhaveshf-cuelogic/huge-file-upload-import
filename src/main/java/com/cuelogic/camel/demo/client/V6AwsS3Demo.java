@@ -37,7 +37,7 @@ public class V6AwsS3Demo {
         camel.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("aws-s3://cameltest?deleteAfterRead=false&maxMessagesPerPoll=25&accessKey=AKIAIVJZ67YUK7BYC4OQ&secretKey=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&region="+Regions.AP_SOUTH_1)
+                from("aws-s3://cameltest?deleteAfterRead=false&maxMessagesPerPoll=25&accessKey=ACCESS_KEY&secretKey=SECRET_KEY&region="+Regions.AP_SOUTH_1)
                 .log(LoggingLevel.INFO, "consuming", "Consumer Fired!")
                 .idempotentConsumer(header("CamelAwsS3ETag"),
                         FileIdempotentRepository.fileIdempotentRepository(new File("target/file.data"), 250, 512000))
