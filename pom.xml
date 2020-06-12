@@ -17,40 +17,49 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<camel.version>3.3.0</camel.version>
+		<camel-version>3.3.0</camel-version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-spring-boot-starter</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-core</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-bindy</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-sql</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-kafka</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-sql-starter</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-aws2-s3</artifactId>
+		    <version>${camel-version}</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-aws-s3</artifactId>
+		    <version>${camel-version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-dbcp2 -->
@@ -76,7 +85,7 @@
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-spring-boot-dependencies</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
@@ -84,7 +93,7 @@
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-spring-boot-starter</artifactId>
-			<version>${camel.version}</version>
+			<version>${camel-version}</version>
 		</dependency>
 
 		<dependency>
