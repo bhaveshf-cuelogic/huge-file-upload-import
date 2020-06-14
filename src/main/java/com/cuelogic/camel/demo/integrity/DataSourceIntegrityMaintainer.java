@@ -19,23 +19,23 @@ public class DataSourceIntegrityMaintainer {
     private static final Logger LOG = LoggerFactory.getLogger(DataSourceIntegrityMaintainer.class);
 
     public static void main(String... argv) throws Exception {
-        //First either generate a public/private key pair or use an existing key pair 
+//        First either generate a public/private key pair or use an existing key pair 
 //        KeyPair pair = generateKeyPair();
         KeyPair pair = getKeyPairFromKeyStore();
 
         //Our secret message
         String message = "I love Java";
-        
+
         //Generate message hash so that it's shorter to encrypt
         String messageHash = generateMD5Digest(message);
 
         //Encrypt the message
-        String cipherText = encrypt(message, pair.getPublic());
+//        String cipherText = encrypt(messageHash, pair.getPrivate());
 
         //Now decrypt it
-        String decipheredMessage = decrypt(cipherText, pair.getPrivate());
+//        String decipheredMessage = decrypt(cipherText, pair.getPublic());
 
-        System.out.println(decipheredMessage);
+//        System.out.println(decipheredMessage);
 
         //Let's sign our message
         String signature = sign("foobar", pair.getPrivate());
@@ -108,24 +108,24 @@ public class DataSourceIntegrityMaintainer {
         return hexString.toString();
     }
 
-    public static String encrypt(String plainText, PublicKey publicKey) throws Exception {
+    public static String encrypt(String plainText, PrivateKey privateKey) throws Exception {
         Cipher encryptCipher = Cipher.getInstance("RSA");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        encryptCipher.init(Cipher.ENCRYPT_MODE, privateKey);
         byte[] cipherText = encryptCipher.doFinal(plainText.getBytes("UTF-8"));
         return Base64.getEncoder().encodeToString(cipherText);
     }
 
-    public static String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
+    public static String decrypt(String cipherText, PublicKey publicKey) throws Exception {
         byte[] bytes = Base64.getDecoder().decode(cipherText);
         Cipher decriptCipher = Cipher.getInstance("RSA");
-        decriptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        decriptCipher.init(Cipher.DECRYPT_MODE, publicKey);
         return new String(decriptCipher.doFinal(bytes), "UTF-8");
     }
 
     public static String sign(String plainText, PrivateKey privateKey) throws Exception {
         Signature privateSignature = Signature.getInstance("SHA256withRSA");
         privateSignature.initSign(privateKey);
-        privateSignature.update(plainText.getBytes("UTF-8"));
+//        privateSignature.update(plainText.getBytes("UTF-8"));
         byte[] signature = privateSignature.sign();
         return Base64.getEncoder().encodeToString(signature);
     }
@@ -133,10 +133,8 @@ public class DataSourceIntegrityMaintainer {
     public static boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception {
         Signature publicSignature = Signature.getInstance("SHA256withRSA");
         publicSignature.initVerify(publicKey);
-        publicSignature.update(plainText.getBytes("UTF-8"));
-
+//        publicSignature.update(plainText.getBytes("UTF-8"));
         byte[] signatureBytes = Base64.getDecoder().decode(signature);
-
         return publicSignature.verify(signatureBytes);
     }
 
