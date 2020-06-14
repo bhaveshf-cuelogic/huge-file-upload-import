@@ -42,7 +42,7 @@ public class DataSourceIntegrityMaintainer {
 
         //Let's check the signature
         boolean isCorrect = verify("foobar", signature, pair.getPublic());
-        System.out.println("Signature correct: " + isCorrect);
+        LOG.info("Signature correct: " + isCorrect);
     }
 
 //    private KeyPair generateKeyPair() {
@@ -85,8 +85,8 @@ public class DataSourceIntegrityMaintainer {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        LOG.info("Public key from jks file "+publicKey);
-        LOG.info("Private key from jks file "+privateKey);
+        LOG.debug("Public key from jks file "+publicKey);
+        LOG.debug("Private key from jks file "+privateKey);
         return new KeyPair(publicKey, privateKey);
     }
 
@@ -100,13 +100,13 @@ public class DataSourceIntegrityMaintainer {
         }
         md.update(msg.getBytes());
         byte[] digest = md.digest();
-        LOG.info("Digest for `"+msg+"` = "+digest);
+        LOG.debug("Digest for `"+msg+"` = "+digest);
 
         StringBuffer hexString = new StringBuffer();
         for (int i = 0;i<digest.length;i++) {
            hexString.append(Integer.toHexString(0xFF & digest[i]));
         }
-        LOG.info("Digest for `"+msg+"` in hex format : " + hexString.toString());
+        LOG.debug("Digest for `"+msg+"` in hex format : " + hexString.toString());
         return hexString.toString();
     }
 
@@ -129,6 +129,14 @@ public class DataSourceIntegrityMaintainer {
         privateSignature.initSign(privateKey);
 //        privateSignature.update(plainText.getBytes("UTF-8"));
         byte[] signature = privateSignature.sign();
+
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0;i<signature.length;i++) {
+           hexString.append(Integer.toHexString(0xFF & signature[i]));
+        }
+        LOG.debug("Signature HEX = "+hexString);
+        LOG.debug("Signature String = "+Base64.getEncoder().encodeToString(signature));
+
         return Base64.getEncoder().encodeToString(signature);
     }
 
