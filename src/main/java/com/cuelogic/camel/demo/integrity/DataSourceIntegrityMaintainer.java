@@ -1,77 +1,101 @@
 package com.cuelogic.camel.demo.integrity;
 
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
+import java.io.InputStream;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.KeyStore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.security.Signature;
-import java.security.SignatureException;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DataSourceIntegrityMaintainer {
     private static final Logger LOG = LoggerFactory.getLogger(DataSourceIntegrityMaintainer.class);
+
+    public static void main(String... argv) throws Exception {
+        //First either generate a public/private key pair or use an existing key pair 
+//        KeyPair pair = generateKeyPair();
+        KeyPair pair = getKeyPairFromKeyStore();
+
+        //Our secret message
+        String message = "I love Java";
+        
+        //Generate message hash so that it's shorter to encrypt
+        String messageHash = generateMD5Digest(message);
+
+        //Encrypt the message
+        String cipherText = encrypt(message, pair.getPublic());
+
+        //Now decrypt it
+        String decipheredMessage = decrypt(cipherText, pair.getPrivate());
+
+        System.out.println(decipheredMessage);
+
+        //Let's sign our message
+        String signature = sign("foobar", pair.getPrivate());
+
+        //Let's check the signature
+        boolean isCorrect = verify("foobar", signature, pair.getPublic());
+        System.out.println("Signature correct: " + isCorrect);
+    }
+
+//    private KeyPair generateKeyPair() {
+//        LOG.info("Generating KeyPair");
+//        KeyPairGenerator generator;
+//        KeyPair pair = null;
+//        Integer keysize = 1024; //higher the value, more the compute required
+//        try {
+//            generator = KeyPairGenerator.getInstance("RSA");
+//            generator.initialize(keysize, new SecureRandom());
+//            pair = generator.generateKeyPair();
+//            LOG.info("Private key = "+pair.getPrivate().toString());
+//            LOG.info("Public key = "+pair.getPublic().toString());
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }        
+//        return pair;
+//    }
     
-    String sentMsg;
-    String receivedMsg;
-    
-    PrivateKey privKey;
-    PublicKey publicKey;
-    
-    public DataSourceIntegrityMaintainer() throws NoSuchAlgorithmException {
-        generateKeyPair();
-        this.setSentMsg("I Love Java");
-//        this.setReceivedMsg("I love Java");
-    }
-    
-    public String getReceivedMsg() {
-        return receivedMsg;
-    }
+    public static KeyPair getKeyPairFromKeyStore() {
+        //Generated with:
+        //  keytool -genkeypair -alias mykey -storepass s3cr3t -keypass s3cr3t -keyalg RSA -keystore keystore.jks
+        PublicKey publicKey = null;
+        PrivateKey privateKey = null;
+        String keyStoreFileLocation = "/vyp.jks";
+        try {
+            InputStream ins = DataSourceIntegrityMaintainer.class.getResourceAsStream(keyStoreFileLocation);
 
-    public void setReceivedMsg(String receivedMsg) {
-        LOG.info("Setting received msg as "+receivedMsg);
-        this.receivedMsg = receivedMsg;
-    }
+            KeyStore keyStore = KeyStore.getInstance("jks");
+            keyStore.load(ins, "hhsvyp".toCharArray());   //Keystore password
+            KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection("hhsvyp".toCharArray());
 
-    public String getSentMsg() {
-        return sentMsg;
-    }
+            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("hhsvyp", keyPassword);
 
-    public void setSentMsg(String sentMsg) {
-        LOG.info("Setting sent msg as "+sentMsg);
-        this.sentMsg = sentMsg;
+            java.security.cert.Certificate cert = keyStore.getCertificate("hhsvyp");
+            publicKey = cert.getPublicKey();
+            privateKey = privateKeyEntry.getPrivateKey();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        LOG.info("Public key from jks file "+publicKey);
+        LOG.info("Private key from jks file "+privateKey);
+        return new KeyPair(publicKey, privateKey);
     }
 
-    public PrivateKey getPrivKey() {
-        return privKey;
-    }
-
-    public PublicKey getPublicKey() {
-        return publicKey;
-    }
-
-    private void generateKeyPair() throws NoSuchAlgorithmException {
-        LOG.info("Generating KeyPair");
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(1024, new SecureRandom());
-
-        KeyPair pair = generator.generateKeyPair();
-
-        this.privKey = pair.getPrivate();
-        this.publicKey = pair.getPublic();
-
-        LOG.info("Private key = "+privKey.toString());
-        LOG.info("Public key = "+publicKey.toString());
-    }
-
-    public void generateMsgDigest(String msg) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
+    public static String generateMD5Digest(String msg) {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         md.update(msg.getBytes());
         byte[] digest = md.digest();
         LOG.info("Digest for `"+msg+"` = "+digest);
@@ -81,24 +105,39 @@ public class DataSourceIntegrityMaintainer {
            hexString.append(Integer.toHexString(0xFF & digest[i]));
         }
         LOG.info("Digest for `"+msg+"` in hex format : " + hexString.toString());
+        return hexString.toString();
     }
 
-    public void signMsg(String msg) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException {
-        // TODO Auto-generated method stub
-        Signature sign = Signature.getInstance("SHA256withRSA");
-        sign.initSign(this.getPrivKey());
-        sign.update(this.getSentMsg().getBytes());
-        byte[] signature = sign.sign();
-        LOG.info("Digital signature for "+this.getSentMsg()+" : "+new String(signature, "UTF8"));
+    public static String encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes("UTF-8"));
+        return Base64.getEncoder().encodeToString(cipherText);
     }
-    
-//    public void loadKeyStore() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, FileNotFoundException, IOException {
-//        KeyStore ks = KeyStore.getInstance("JKS");
-//        char[] pwdArray = "hhsvyp".toCharArray();
-//        ks.load(new FileInputStream("vyp.jks"), pwdArray);
-//        System.out.println("Keystore file loaded");
-//        
-//        X509Certificate[] certificateChain = new X509Certificate[2];
-//        ks.setKeyEntry("sso-signing-key", this.getPrivKey(), pwdArray, certificateChain);
-//    }
+
+    public static String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
+        byte[] bytes = Base64.getDecoder().decode(cipherText);
+        Cipher decriptCipher = Cipher.getInstance("RSA");
+        decriptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(decriptCipher.doFinal(bytes), "UTF-8");
+    }
+
+    public static String sign(String plainText, PrivateKey privateKey) throws Exception {
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(plainText.getBytes("UTF-8"));
+        byte[] signature = privateSignature.sign();
+        return Base64.getEncoder().encodeToString(signature);
+    }
+
+    public static boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(plainText.getBytes("UTF-8"));
+
+        byte[] signatureBytes = Base64.getDecoder().decode(signature);
+
+        return publicSignature.verify(signatureBytes);
+    }
+
 }
