@@ -120,7 +120,7 @@ public class V7AwsS3ToSqlDemo {
             camel.start();
         }
     }
-    
+
     private static AggregationRepository getAggregationRepository() {
         // TODO Auto-generated method stub
         // ideally this repo's DB should be different from business db
