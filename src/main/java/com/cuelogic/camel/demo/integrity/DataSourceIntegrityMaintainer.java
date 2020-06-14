@@ -24,7 +24,7 @@ public class DataSourceIntegrityMaintainer {
         KeyPair pair = getKeyPairFromKeyStore();
 
         //Our secret message
-        String message = "I love Java";
+        String message = "My gmail password is P@ssw0rd!";
 
         //Generate message hash so that it's shorter to encrypt
         String messageHash = generateMD5Digest(message);
@@ -64,7 +64,9 @@ public class DataSourceIntegrityMaintainer {
     
     public static KeyPair getKeyPairFromKeyStore() {
         //Generated with:
-        //  keytool -genkeypair -alias mykey -storepass s3cr3t -keypass s3cr3t -keyalg RSA -keystore keystore.jks
+        //  keytool -genkeypair -alias hhsvyp -storepass hhsvyp -keypass hhsvyp -keyalg RSA -keystore vyp.jks
+        // How to view .jks file or use Keystore Explorer utility:
+//        keytool -list -v -keystore vyp.jks -storepass <password>
         PublicKey publicKey = null;
         PrivateKey privateKey = null;
         String keyStoreFileLocation = "/vyp.jks";
@@ -108,19 +110,19 @@ public class DataSourceIntegrityMaintainer {
         return hexString.toString();
     }
 
-    public static String encrypt(String plainText, PrivateKey privateKey) throws Exception {
-        Cipher encryptCipher = Cipher.getInstance("RSA");
-        encryptCipher.init(Cipher.ENCRYPT_MODE, privateKey);
-        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes("UTF-8"));
-        return Base64.getEncoder().encodeToString(cipherText);
-    }
-
-    public static String decrypt(String cipherText, PublicKey publicKey) throws Exception {
-        byte[] bytes = Base64.getDecoder().decode(cipherText);
-        Cipher decriptCipher = Cipher.getInstance("RSA");
-        decriptCipher.init(Cipher.DECRYPT_MODE, publicKey);
-        return new String(decriptCipher.doFinal(bytes), "UTF-8");
-    }
+//    public static String encrypt(String plainText, PrivateKey privateKey) throws Exception {
+//        Cipher encryptCipher = Cipher.getInstance("RSA");
+//        encryptCipher.init(Cipher.ENCRYPT_MODE, privateKey);
+//        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes("UTF-8"));
+//        return Base64.getEncoder().encodeToString(cipherText);
+//    }
+//
+//    public static String decrypt(String cipherText, PublicKey publicKey) throws Exception {
+//        byte[] bytes = Base64.getDecoder().decode(cipherText);
+//        Cipher decriptCipher = Cipher.getInstance("RSA");
+//        decriptCipher.init(Cipher.DECRYPT_MODE, publicKey);
+//        return new String(decriptCipher.doFinal(bytes), "UTF-8");
+//    }
 
     public static String sign(String plainText, PrivateKey privateKey) throws Exception {
         Signature privateSignature = Signature.getInstance("SHA256withRSA");
@@ -131,11 +133,17 @@ public class DataSourceIntegrityMaintainer {
     }
 
     public static boolean verify(String plainText, String signature, PublicKey publicKey) throws Exception {
-        Signature publicSignature = Signature.getInstance("SHA256withRSA");
-        publicSignature.initVerify(publicKey);
-//        publicSignature.update(plainText.getBytes("UTF-8"));
-        byte[] signatureBytes = Base64.getDecoder().decode(signature);
-        return publicSignature.verify(signatureBytes);
+        boolean verifyStatus = false;
+        try {
+            Signature publicSignature = Signature.getInstance("SHA256withRSA");
+            publicSignature.initVerify(publicKey);
+    //        publicSignature.update(plainText.getBytes("UTF-8"));
+            byte[] signatureBytes = Base64.getDecoder().decode(signature);
+            verifyStatus = publicSignature.verify(signatureBytes);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return verifyStatus;
     }
 
 }
