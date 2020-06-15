@@ -38,11 +38,16 @@ public class DataSourceIntegrityMaintainer {
 //        System.out.println(decipheredMessage);
 
         //Let's sign our message
-        String signature = sign("foobar", pair.getPrivate());
+        String signature = sign(message, pair.getPrivate());
 
         //Let's check the signature
-        boolean isCorrect = verify("foobar", signature, pair.getPublic());
-        LOG.info("Signature correct: " + isCorrect);
+        boolean isCorrect = verify(message, signature, pair.getPublic());
+        LOG.info("Is signature correct for "+message+" : " + isCorrect);
+
+        String tamperedString = "any random characters or even a space";
+        message = message+tamperedString;
+        isCorrect = verify(message, signature, pair.getPublic());
+        LOG.info("Is signature correct for "+message+" : " + isCorrect);
     }
 
 //    private KeyPair generateKeyPair() {
@@ -127,7 +132,7 @@ public class DataSourceIntegrityMaintainer {
     public static String sign(String plainText, PrivateKey privateKey) throws Exception {
         Signature privateSignature = Signature.getInstance("SHA256withRSA");
         privateSignature.initSign(privateKey);
-//        privateSignature.update(plainText.getBytes("UTF-8"));
+        privateSignature.update(plainText.getBytes("UTF-8"));
         byte[] signature = privateSignature.sign();
 
         StringBuffer hexString = new StringBuffer();
@@ -145,7 +150,7 @@ public class DataSourceIntegrityMaintainer {
         try {
             Signature publicSignature = Signature.getInstance("SHA256withRSA");
             publicSignature.initVerify(publicKey);
-    //        publicSignature.update(plainText.getBytes("UTF-8"));
+            publicSignature.update(plainText.getBytes("UTF-8"));
             byte[] signatureBytes = Base64.getDecoder().decode(signature);
             verifyStatus = publicSignature.verify(signatureBytes);
         } catch(Exception e) {
