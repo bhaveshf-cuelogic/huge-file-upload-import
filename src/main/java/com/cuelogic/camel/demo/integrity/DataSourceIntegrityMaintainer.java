@@ -21,33 +21,33 @@ public class DataSourceIntegrityMaintainer {
     public static void main(String... argv) throws Exception {
 //        First either generate a public/private key pair or use an existing key pair 
 //        KeyPair pair = generateKeyPair();
-        KeyPair pair = getKeyPairFromKeyStore();
+        KeyPair pair = getKeyPairFromKeyStore(); // to be used for vyp scenario
 
-        //Our secret message
+        // Our secret message
         String message = "My gmail password is P@ssw0rd!";
 
-        //Generate message hash so that it's shorter to encrypt
+        // Generate message hash so that it's shorter to encrypt
         String messageHash = generateMD5Digest(message);
 
-        //Encrypt the message
+        // Encrypt the message
 //        String cipherText = encrypt(messageHash, pair.getPrivate());
 
-        //Now decrypt it
+        // Now decrypt it
 //        String decipheredMessage = decrypt(cipherText, pair.getPublic());
 
 //        System.out.println(decipheredMessage);
 
-        //Let's sign our message
+        // Let's sign our message
         String signature = sign(message, pair.getPrivate());
 
-        //Let's check the signature
+        // Let's check the signature
         boolean isCorrect = verify(message, signature, pair.getPublic());
-        LOG.info("Is signature correct for "+message+" : " + isCorrect);
+        LOG.debug("Is signature correct for " + message + " : " + isCorrect);
 
         String tamperedString = "any random characters or even a space";
-        message = message+tamperedString;
+        message = message + tamperedString;
         isCorrect = verify(message, signature, pair.getPublic());
-        LOG.info("Is signature correct for "+message+" : " + isCorrect);
+        LOG.debug("Is signature correct for " + message + " : " + isCorrect);
     }
 
 //    private KeyPair generateKeyPair() {
@@ -66,10 +66,11 @@ public class DataSourceIntegrityMaintainer {
 //        }        
 //        return pair;
 //    }
-    
+
     public static KeyPair getKeyPairFromKeyStore() {
-        //Generated with:
-        //  keytool -genkeypair -alias hhsvyp -storepass hhsvyp -keypass hhsvyp -keyalg RSA -keystore vyp.jks
+        // Generated with:
+        // keytool -genkeypair -alias hhsvyp -storepass hhsvyp -keypass hhsvyp -keyalg
+        // RSA -keystore vyp.jks
         // How to view .jks file or use Keystore Explorer utility:
 //        keytool -list -v -keystore vyp.jks -storepass <password>
         PublicKey publicKey = null;
@@ -79,19 +80,20 @@ public class DataSourceIntegrityMaintainer {
             InputStream ins = DataSourceIntegrityMaintainer.class.getResourceAsStream(keyStoreFileLocation);
 
             KeyStore keyStore = KeyStore.getInstance("jks");
-            keyStore.load(ins, "hhsvyp".toCharArray());   //Keystore password
+            keyStore.load(ins, "hhsvyp".toCharArray()); // Keystore password
             KeyStore.PasswordProtection keyPassword = new KeyStore.PasswordProtection("hhsvyp".toCharArray());
 
-            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("hhsvyp", keyPassword);
+            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("hhsvyp",
+                    keyPassword);
 
             java.security.cert.Certificate cert = keyStore.getCertificate("hhsvyp");
             publicKey = cert.getPublicKey();
             privateKey = privateKeyEntry.getPrivateKey();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        LOG.debug("Public key from jks file "+publicKey);
-        LOG.debug("Private key from jks file "+privateKey);
+        LOG.debug("Public key from jks file " + publicKey);
+        LOG.debug("Private key from jks file " + privateKey);
         return new KeyPair(publicKey, privateKey);
     }
 
@@ -105,13 +107,13 @@ public class DataSourceIntegrityMaintainer {
         }
         md.update(msg.getBytes());
         byte[] digest = md.digest();
-        LOG.debug("Digest for `"+msg+"` = "+digest);
+        LOG.debug("Digest for `" + msg + "` = " + digest);
 
         StringBuffer hexString = new StringBuffer();
-        for (int i = 0;i<digest.length;i++) {
-           hexString.append(Integer.toHexString(0xFF & digest[i]));
+        for (int i = 0; i < digest.length; i++) {
+            hexString.append(Integer.toHexString(0xFF & digest[i]));
         }
-        LOG.debug("Digest for `"+msg+"` in hex format : " + hexString.toString());
+        LOG.debug("Digest for `" + msg + "` in hex format : " + hexString.toString());
         return hexString.toString();
     }
 
@@ -134,14 +136,12 @@ public class DataSourceIntegrityMaintainer {
         privateSignature.initSign(privateKey);
         privateSignature.update(plainText.getBytes("UTF-8"));
         byte[] signature = privateSignature.sign();
-
         StringBuffer hexString = new StringBuffer();
-        for (int i = 0;i<signature.length;i++) {
-           hexString.append(Integer.toHexString(0xFF & signature[i]));
+        for (int i = 0; i < signature.length; i++) {
+            hexString.append(Integer.toHexString(0xFF & signature[i]));
         }
-        LOG.debug("Signature HEX = "+hexString);
-        LOG.debug("Signature String = "+Base64.getEncoder().encodeToString(signature));
-
+        LOG.debug("Signature HEX = " + hexString);
+        LOG.debug("Signature String = " + Base64.getEncoder().encodeToString(signature));
         return Base64.getEncoder().encodeToString(signature);
     }
 
@@ -153,7 +153,7 @@ public class DataSourceIntegrityMaintainer {
             publicSignature.update(plainText.getBytes("UTF-8"));
             byte[] signatureBytes = Base64.getDecoder().decode(signature);
             verifyStatus = publicSignature.verify(signatureBytes);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return verifyStatus;
