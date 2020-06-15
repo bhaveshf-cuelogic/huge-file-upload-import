@@ -1,4 +1,4 @@
-package com.cuelogic.camel.demo.model.vyp;
+package com.hhstechgroup.vyp.model;
 
 public class SSNResponse {
 

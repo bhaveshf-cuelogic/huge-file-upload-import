@@ -1,10 +1,10 @@
-package com.cuelogic.camel.demo.model.vyp;
+package com.hhstechgroup.vyp.model;
 
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
 
 @CsvRecord(separator = ",", skipFirstLine = true)
-public class LeieExclusion {
+public class LeieReinstatement {
 
     @DataField(pos = 1, required = false)
     public String last_name;

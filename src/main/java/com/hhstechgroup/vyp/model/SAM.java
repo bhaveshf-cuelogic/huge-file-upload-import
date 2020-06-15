@@ -1,4 +1,4 @@
-package com.cuelogic.camel.demo.model.vyp;
+package com.hhstechgroup.vyp.model;
 
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;

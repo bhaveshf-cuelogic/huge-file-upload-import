@@ -1,10 +1,10 @@
-package com.cuelogic.camel.demo.model.vyp;
+package com.hhstechgroup.vyp.model;
 
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
 
-@CsvRecord(separator = ",", skipFirstLine = true)
-public class LeieReinstatement {
+@CsvRecord(separator = ",", skipFirstLine = false)
+public class LeieExclusion {
 
     @DataField(pos = 1, required = false)
     public String last_name;
@@ -202,6 +202,16 @@ public class LeieReinstatement {
 
     public void setWaiver_state(String waiver_state) {
         this.waiver_state = waiver_state;
+    }
+
+    @Override
+    public String toString() {
+        return "LeieExclusion [last_name=" + last_name + ", first_name=" + first_name + ", middle_name=" + middle_name
+                + ", business_name=" + business_name + ", general=" + general + ", speciality=" + speciality + ", upin="
+                + upin + ", npi=" + npi + ", dob=" + dob + ", address=" + address + ", city=" + city + ", state="
+                + state + ", zip=" + zip + ", exclusion_type=" + exclusion_type + ", exclusion_date=" + exclusion_date
+                + ", reinstatement_date=" + reinstatement_date + ", waiver_date=" + waiver_date + ", waiver_state="
+                + waiver_state + "]";
     }
 
 }
