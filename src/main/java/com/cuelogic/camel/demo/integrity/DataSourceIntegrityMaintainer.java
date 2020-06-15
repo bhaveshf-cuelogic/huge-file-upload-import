@@ -10,8 +10,6 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.util.Base64;
 
-import javax.crypto.Cipher;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

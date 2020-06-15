@@ -1,6 +1,9 @@
 package com.hhstechgroup.vyp.routes;
 
 import java.io.File;
+import java.sql.Time;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +22,7 @@ import org.apache.camel.spi.AggregationRepository;
 import org.apache.camel.spi.DataFormat;
 import org.apache.camel.spi.IdempotentRepository;
 import org.apache.camel.support.processor.idempotent.FileIdempotentRepository;
+import org.joda.time.DateTime;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
@@ -141,7 +145,11 @@ public class VypDataImportApplication {
     private static IdempotentRepository getIdempotentRepository() {
         // TODO Auto-generated method stub
         Map repoMap = new HashMap<String, Object>();
-        File fileStore = new File("camel/idempotent-repo.log");
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH-mm-ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        File fileStore = new File("camel/idempotent-repo-"+dtf.format(now)+".log");
         return new FileIdempotentRepository(fileStore, repoMap);
     }
 }
