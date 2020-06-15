@@ -39,7 +39,7 @@ public class VypDataImportApplication {
         final CamelContext camel = new DefaultCamelContext();
         camel.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
         camel.addRoutes(new LeieRouteBuilder());
-//        camel.addRoutes(new SsnRouteBuilder());
+//        camel.addRoutes(new DeathMasterRouteBuilder());
 //        camel.addRoutes(new NPIRouteBuilder());
 //        camel.addRoutes(new TherapyRouteBuilder());
 //        camel.addRoutes(new SamRouteBuilder());
