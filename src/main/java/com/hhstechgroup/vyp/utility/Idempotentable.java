@@ -13,10 +13,7 @@ public interface Idempotentable {
     default IdempotentRepository getIdempotentRepository(String name) {
         // TODO Auto-generated method stub
         Map repoMap = new HashMap<String, Object>();
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd-MM-yyyy HH-mm-ss");
-        LocalDateTime now = LocalDateTime.now();
-
-        File fileStore = new File("camel/" + name + dtf.format(now) + ".log");
+        File fileStore = new File("camel/" + name + ".log");
         return new FileIdempotentRepository(fileStore, repoMap);
     }
 }
