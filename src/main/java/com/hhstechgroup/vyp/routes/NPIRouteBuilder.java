@@ -21,9 +21,9 @@ public class NPIRouteBuilder extends RouteBuilder implements Idempotentable {
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individua"+datasource_name+"Record");
+        .to("direct:individual"+datasource_name+"Record");
 
-        from("direct:individua"+datasource_name+"Record")
+        from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
         .errorHandler(
                 defaultErrorHandler()
@@ -33,7 +33,7 @@ public class NPIRouteBuilder extends RouteBuilder implements Idempotentable {
               )
         .process(new NpiRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
-        .log("Processing msg")
+//        .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new NpiAggregator())
         .completionSize(50)

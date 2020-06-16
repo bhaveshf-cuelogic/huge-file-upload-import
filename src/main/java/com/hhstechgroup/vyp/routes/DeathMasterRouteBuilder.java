@@ -3,6 +3,7 @@ package com.hhstechgroup.vyp.routes;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
+import org.apache.camel.dataformat.bindy.fixed.BindyFixedLengthDataFormat;
 import org.apache.camel.spi.DataFormat;
 
 import com.hhstechgroup.vyp.aggregator.DmfAggregator;
@@ -15,16 +16,16 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
     @Override
     public void configure() throws Exception {
         // TODO Auto-generated method stub
-        final DataFormat bindyObj = new BindyCsvDataFormat(DeathMaster.class);
+        final DataFormat bindyObj = new BindyFixedLengthDataFormat(DeathMaster.class);
         final String datasource_name = "death-master";
         // TODO Auto-generated method stub
         from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individua"+datasource_name+"Record");
+        .to("direct:individual"+datasource_name+"Record");
 
-        from("direct:individua"+datasource_name+"Record")
+        from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
         .errorHandler(
                 defaultErrorHandler()
@@ -34,7 +35,7 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
               )
         .process(new DmfRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
-        .log("Processing msg")
+//        .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new DmfAggregator())
         .completionSize(50)

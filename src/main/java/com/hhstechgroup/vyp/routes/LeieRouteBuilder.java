@@ -34,7 +34,7 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
               )
         .process(new LeieRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
-        .log("Processing msg")
+//        .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new LeieAggregator())
         .completionSize(50)

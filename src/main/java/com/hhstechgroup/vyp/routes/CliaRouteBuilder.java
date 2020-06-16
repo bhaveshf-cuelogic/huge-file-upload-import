@@ -25,9 +25,9 @@ public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individua"+datasource_name+"Record");
+        .to("direct:individual"+datasource_name+"Record");
 
-        from("direct:individua"+datasource_name+"Record")
+        from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
         .errorHandler(
                 defaultErrorHandler()
