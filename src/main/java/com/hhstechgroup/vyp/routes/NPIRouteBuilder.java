@@ -39,7 +39,7 @@ public class NPIRouteBuilder extends RouteBuilder implements Idempotentable {
         .completionSize(50)
         .completionTimeout(5000)
 //        .aggregationRepository(getAggregationRepository())
-        .to("sql:insert into nppes_npi(npi, entity_type_code) values (:#id, :#name)?batch=true")
+        .to("sql:insert into nppes_npi(npi, provider_first_name) values (:#id, :#name)?batch=true")
         .end();
     }
 }
