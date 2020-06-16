@@ -1,0 +1,42 @@
+package com.hhstechgroup.vyp.aggregator;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.camel.AggregationStrategy;
+import org.apache.camel.Exchange;
+import org.apache.camel.Message;
+
+import com.hhstechgroup.vyp.model.LeieExclusion;
+import com.hhstechgroup.vyp.model.NppesNPI;
+import com.hhstechgroup.vyp.model.SAM;
+import com.hhstechgroup.vyp.model.SAM2;
+
+public class SamAggregator implements AggregationStrategy {
+
+    @Override
+    public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
+        // TODO Auto-generated method stub
+        Message newIn = newExchange.getIn();
+        SAM2 obj = (SAM2)newIn.getBody();
+        ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        Map<String, String> m = new HashMap<String, String>();
+        if (oldExchange == null) { //first iteration
+            list = new ArrayList<Map<String, String>>();
+            m.put("id", obj.getDuns());
+            m.put("name", obj.getDuns_plus_4());
+            list.add(m);
+            newIn.setBody(list);
+            return newExchange;
+        } else { //second iteration onwards
+            Message in = oldExchange.getIn();
+            list = in.getBody(ArrayList.class);
+            m.put("id", obj.getDuns());
+            m.put("name", obj.getDuns_plus_4());
+            list.add(m);
+            return oldExchange;
+        }
+    }
+
+}
