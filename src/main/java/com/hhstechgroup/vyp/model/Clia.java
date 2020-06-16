@@ -3,7 +3,7 @@ package com.hhstechgroup.vyp.model;
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
 
-@CsvRecord(separator = ",", skipFirstLine = true)
+@CsvRecord(separator = ",", skipFirstLine = false)
 public class Clia {
 
     @DataField(pos = 1, required = false)

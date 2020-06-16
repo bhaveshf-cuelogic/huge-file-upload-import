@@ -32,7 +32,7 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
                 .retryAttemptedLogLevel(LoggingLevel.ERROR)
               )
         .process(new DmfRecordProcessor())
-        .idempotentConsumer(header("msgHash"), getIdempotentRepository("death-master-idempotent-repo"))
+        .idempotentConsumer(header("msgHash"), getIdempotentRepository("death-master"))
         .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new DmfAggregator())

@@ -31,7 +31,7 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
                 .retryAttemptedLogLevel(LoggingLevel.ERROR)
               )
         .process(new LeieRecordProcessor())
-        .idempotentConsumer(header("msgHash"), getIdempotentRepository("leie-exclusion-idempotent-repo"))
+        .idempotentConsumer(header("msgHash"), getIdempotentRepository("leie-exclusion"))
         .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new LeieAggregator())
