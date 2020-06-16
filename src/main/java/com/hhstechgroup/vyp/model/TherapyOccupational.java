@@ -4,7 +4,7 @@ import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
 
 @CsvRecord(separator = ",", skipFirstLine = true)
-public class TherapyPhysical {
+public class TherapyOccupational {
 
     @DataField(pos = 1, required = false)
     public String last_name;
@@ -13,49 +13,40 @@ public class TherapyPhysical {
     public String first_name;
 
     @DataField(pos = 3, required = false)
-    public String initial;
+    public String license_type;
 
     @DataField(pos = 4, required = false)
-    public String business;
-
-    @DataField(pos = 5, required = false)
-    public String address;
-
-    @DataField(pos = 6, required = false)
-    public String city;
-
-    @DataField(pos = 7, required = false)
-    public String state;
-
-    @DataField(pos = 8, required = false)
-    public String zip;
-
-    @DataField(pos = 9, required = false)
-    public String phone;
-
-    @DataField(pos = 10, required = false)
-    public String email;
-
-    @DataField(pos = 11, required = false)
-    public String profession;
-
-    @DataField(pos = 12, required = false)
-    public String license_certificate;
-
-    @DataField(pos = 13, required = false)
     public String license_number;
 
-    @DataField(pos = 14, required = false)
+    @DataField(pos = 5, required = false)
     public String issue_date;
 
-    @DataField(pos = 15, required = false)
+    @DataField(pos = 6, required = false)
     public String expiry_date;
 
-    @DataField(pos = 16, required = false)
-    public String discipline;
-
-    @DataField(pos = 17, required = false)
+    @DataField(pos = 7, required = false)
     public String status;
+
+    @DataField(pos = 8, required = false)
+    public String business;
+
+    @DataField(pos = 9, required = false)
+    public String address;
+
+    @DataField(pos = 10, required = false)
+    public String city;
+
+    @DataField(pos = 11, required = false)
+    public String state;
+
+    @DataField(pos = 12, required = false)
+    public String zip;
+
+    @DataField(pos = 13, required = false)
+    public String email;
+
+    @DataField(pos = 14, required = false)
+    public String discipline;
 
     public String getLast_name() {
         return last_name;
@@ -73,12 +64,44 @@ public class TherapyPhysical {
         this.first_name = first_name;
     }
 
-    public String getInitial() {
-        return initial;
+    public String getLicense_type() {
+        return license_type;
     }
 
-    public void setInitial(String initial) {
-        this.initial = initial;
+    public void setLicense_type(String license_type) {
+        this.license_type = license_type;
+    }
+
+    public String getLicense_number() {
+        return license_number;
+    }
+
+    public void setLicense_number(String license_number) {
+        this.license_number = license_number;
+    }
+
+    public String getIssue_date() {
+        return issue_date;
+    }
+
+    public void setIssue_date(String issue_date) {
+        this.issue_date = issue_date;
+    }
+
+    public String getExpiry_date() {
+        return expiry_date;
+    }
+
+    public void setExpiry_date(String expiry_date) {
+        this.expiry_date = expiry_date;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getBusiness() {
@@ -121,60 +144,12 @@ public class TherapyPhysical {
         this.zip = zip;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getProfession() {
-        return profession;
-    }
-
-    public void setProfession(String profession) {
-        this.profession = profession;
-    }
-
-    public String getLicense_certificate() {
-        return license_certificate;
-    }
-
-    public void setLicense_certificate(String license_certificate) {
-        this.license_certificate = license_certificate;
-    }
-
-    public String getLicense_number() {
-        return license_number;
-    }
-
-    public void setLicense_number(String license_number) {
-        this.license_number = license_number;
-    }
-
-    public String getIssue_date() {
-        return issue_date;
-    }
-
-    public void setIssue_date(String issue_date) {
-        this.issue_date = issue_date;
-    }
-
-    public String getExpiry_date() {
-        return expiry_date;
-    }
-
-    public void setExpiry_date(String expiry_date) {
-        this.expiry_date = expiry_date;
     }
 
     public String getDiscipline() {
@@ -184,13 +159,5 @@ public class TherapyPhysical {
     public void setDiscipline(String discipline) {
         this.discipline = discipline;
     }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
+    
 }

@@ -20,7 +20,7 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
     public void configure() throws Exception {
         final DataFormat bindyObj = new BindyCsvDataFormat(SAM2.class);
         final String datasource_name = "sam";
-        
+
         // TODO Auto-generated method stub
         from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
@@ -37,7 +37,7 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
                 .retryAttemptedLogLevel(LoggingLevel.ERROR)
               )
         .process(new SamRecordProcessor())
-        .idempotentConsumer(header("msgHash"), getIdempotentRepository("sam"))
+        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
         .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new SamAggregator())

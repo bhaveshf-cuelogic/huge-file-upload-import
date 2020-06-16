@@ -15,15 +15,17 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
     @Override
     public void configure() throws Exception {
         final DataFormat bindyObj = new BindyCsvDataFormat(LeieExclusion.class);
+        final String datasource_name = "leie-exclusion";
+
         // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/leie/?noop=true")
-        .routeId("fileMessageFromLeieFolder")
+        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individuaLeieRecord");
+        .to("direct:individua"+datasource_name+"Record");
 
-        from("direct:individuaLeieRecord")
-        .routeId("individualLeieRowRecord")
+        from("direct:individua"+datasource_name+"Record")
+        .routeId("individual"+datasource_name+"RowRecord")
         .errorHandler(
                 defaultErrorHandler()
                 .redeliveryDelay(2000)
@@ -31,7 +33,7 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
                 .retryAttemptedLogLevel(LoggingLevel.ERROR)
               )
         .process(new LeieRecordProcessor())
-        .idempotentConsumer(header("msgHash"), getIdempotentRepository("leie-exclusion"))
+        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
         .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new LeieAggregator())

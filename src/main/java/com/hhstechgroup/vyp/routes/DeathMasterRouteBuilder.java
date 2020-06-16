@@ -16,15 +16,16 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
     public void configure() throws Exception {
         // TODO Auto-generated method stub
         final DataFormat bindyObj = new BindyCsvDataFormat(DeathMaster.class);
+        final String datasource_name = "death-master";
         // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/dmf/?noop=true")
-        .routeId("fileMessageFromDmfFolder")
+        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individuaDmfRecord");
+        .to("direct:individua"+datasource_name+"Record");
 
-        from("direct:individuaDmfRecord")
-        .routeId("individualDmfRecord")
+        from("direct:individua"+datasource_name+"Record")
+        .routeId("individual"+datasource_name+"RowRecord")
         .errorHandler(
                 defaultErrorHandler()
                 .redeliveryDelay(2000)
@@ -32,7 +33,7 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
                 .retryAttemptedLogLevel(LoggingLevel.ERROR)
               )
         .process(new DmfRecordProcessor())
-        .idempotentConsumer(header("msgHash"), getIdempotentRepository("death-master"))
+        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
         .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new DmfAggregator())
