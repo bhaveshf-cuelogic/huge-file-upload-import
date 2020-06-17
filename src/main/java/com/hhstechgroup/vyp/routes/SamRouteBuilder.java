@@ -22,7 +22,15 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individual"+datasource_name+"Record");
+        .choice()
+        .when(body().startsWith("BOF PUBLIC"))
+            .log("Ignoring message "+body())
+            .to("direct:ignore")
+        .when(body().startsWith("EOF PUBLIC"))
+            .log("Ignoring message "+body())
+            .to("direct:ignore")
+        .otherwise()
+            .to("direct:individual"+datasource_name+"Record");
 
         from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
