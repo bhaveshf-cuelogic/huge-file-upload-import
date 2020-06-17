@@ -52,14 +52,14 @@
 			<version>${camel-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-aws2-s3</artifactId>
-			<version>${camel-version}</version>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-aws2-s3</artifactId>
+		    <version>${camel-version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-aws-s3</artifactId>
-			<version>${camel-version}</version>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-aws-s3</artifactId>
+		    <version>${camel-version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-dbcp2 -->
