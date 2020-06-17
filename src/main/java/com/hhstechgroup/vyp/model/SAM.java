@@ -3,7 +3,7 @@ package com.hhstechgroup.vyp.model;
 import org.apache.camel.dataformat.bindy.annotation.CsvRecord;
 import org.apache.camel.dataformat.bindy.annotation.DataField;
 
-@CsvRecord(separator = "|", skipFirstLine = false)
+@CsvRecord(separator = "\\|", skipFirstLine = false)
 public class SAM {
 
     @DataField(pos = 1, length = 9, required = false)

@@ -8,10 +8,7 @@ import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 
-import com.hhstechgroup.vyp.model.LeieExclusion;
-import com.hhstechgroup.vyp.model.NppesNPI;
 import com.hhstechgroup.vyp.model.SAM;
-import com.hhstechgroup.vyp.model.SAM2;
 
 public class SamAggregator implements AggregationStrategy {
 
@@ -19,7 +16,7 @@ public class SamAggregator implements AggregationStrategy {
     public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
         // TODO Auto-generated method stub
         Message newIn = newExchange.getIn();
-        SAM2 obj = (SAM2)newIn.getBody();
+        SAM obj = (SAM)newIn.getBody();
         ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
         Map<String, String> m = new HashMap<String, String>();
         if (oldExchange == null) { //first iteration

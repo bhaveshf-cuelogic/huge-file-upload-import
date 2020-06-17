@@ -8,10 +8,6 @@ import org.apache.camel.AggregationStrategy;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 
-import com.hhstechgroup.vyp.model.LeieExclusion;
-import com.hhstechgroup.vyp.model.NppesNPI;
-import com.hhstechgroup.vyp.model.SAM;
-import com.hhstechgroup.vyp.model.SAM2;
 import com.hhstechgroup.vyp.model.TherapyOccupational;
 
 public class OccupationalTherapyAggregator implements AggregationStrategy {
