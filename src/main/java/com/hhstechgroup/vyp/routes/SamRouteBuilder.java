@@ -25,10 +25,10 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
         .choice()
         .when(body().startsWith("BOF PUBLIC"))
             .log("Ignoring message because a header row is detected - "+body())
-            .to("file:camel/ignore")
+            .to("direct:trash")
         .when(body().startsWith("EOF PUBLIC"))
-            .log("Ignoring message because a footer row is detected"+body())
-            .to("file:camel/ignore")
+            .log("Ignoring message because a footer row is detected - "+body())
+            .to("direct:trash")
         .otherwise()
             .to("direct:individual"+datasource_name+"Record");
 

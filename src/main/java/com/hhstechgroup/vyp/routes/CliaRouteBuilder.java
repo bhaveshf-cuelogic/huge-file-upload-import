@@ -25,10 +25,11 @@ public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
+        .filter(body().contains("CITY_NAME"))
         .choice()
         .when(body().contains("CITY_NAME"))
             .log("Ignoring message because a header row is detected - "+body())
-            .to("file:camel/ignore")
+            .to("direct:trash")
         .otherwise()
             .to("direct:individual"+datasource_name+"Record");
 

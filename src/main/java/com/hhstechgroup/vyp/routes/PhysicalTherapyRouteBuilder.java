@@ -29,7 +29,7 @@ public class PhysicalTherapyRouteBuilder extends RouteBuilder implements Idempot
         final String datasource_name = "physical-therapy";
 
         // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
