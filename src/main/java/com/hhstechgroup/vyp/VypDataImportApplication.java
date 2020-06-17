@@ -26,14 +26,14 @@ public class VypDataImportApplication {
     public static void main(String[] args) throws Exception {
         final CamelContext camel = new DefaultCamelContext();
         camel.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
-        camel.addRoutes(new LeieRouteBuilder()); // working
-        camel.addRoutes(new DeathMasterRouteBuilder()); // flatfile format not working
-        camel.addRoutes(new NPIRouteBuilder()); // getting some SQL exception
-        camel.addRoutes(new CliaRouteBuilder()); // almost working, just check the datatype restrictions
-        camel.addRoutes(new SamRouteBuilder()); // getting some exception that 151 pos data is missing
-        camel.addRoutes(new SpeechTherapyRouteBuilder()); // escape top 3-5 lines before processing
-        camel.addRoutes(new OccupationalTherapyRouteBuilder()); // escape top 3-5 lines before processing
-        camel.addRoutes(new PhysicalTherapyRouteBuilder()); // escape top 3-5 lines before processing
+//        camel.addRoutes(new LeieRouteBuilder()); // working
+//        camel.addRoutes(new DeathMasterRouteBuilder()); // working
+//        camel.addRoutes(new NPIRouteBuilder()); // working
+//        camel.addRoutes(new CliaRouteBuilder()); // working
+        camel.addRoutes(new SamRouteBuilder()); // working but need some way to skip header and footer lines
+//        camel.addRoutes(new SpeechTherapyRouteBuilder()); // escape top 3-5 lines before processing
+//        camel.addRoutes(new OccupationalTherapyRouteBuilder()); // escape top 3-5 lines before processing
+//        camel.addRoutes(new PhysicalTherapyRouteBuilder()); // escape top 3-5 lines before processing
 
         DriverManagerDataSource ds = new DriverManagerDataSource(DB_URL, DB_USER, DB_PASS);
         ds.setDriverClassName(DB_DRIVER_CLASS_NAME);

@@ -49,8 +49,8 @@ public class V7AwsS3ToSqlDemo {
                 from("aws2-s3://arn:aws:s3:::cameltest?"
                         + "deleteAfterRead=true&"
                         + "maxMessagesPerPoll=25&"
-                        + "accessKey=ACCESS_KEY&"
-                        + "secretKey=SECRET_KEY&"
+                        + "accessKey=AKIAJJZQC2GDZ6HNNWPA&"
+                        + "secretKey=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&"
                         + "destinationBucket=camelprocessed&"
                         + "moveAfterRead=true&"
                         + "region=ap-south-1")
