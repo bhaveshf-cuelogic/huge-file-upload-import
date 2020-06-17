@@ -17,7 +17,7 @@ public class NPIRouteBuilder extends RouteBuilder implements Idempotentable {
         final DataFormat bindyObj = new BindyCsvDataFormat(NppesNPI.class);
         final String datasource_name = "nppes-npi";
         // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()

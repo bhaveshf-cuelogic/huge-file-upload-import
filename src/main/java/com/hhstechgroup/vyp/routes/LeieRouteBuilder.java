@@ -18,7 +18,7 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
         final String datasource_name = "leie-exclusion";
 
         // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()

@@ -18,17 +18,17 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
         final String datasource_name = "sam";
 
         // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
         .choice()
         .when(body().startsWith("BOF PUBLIC"))
-            .log("Ignoring message "+body())
-            .to("direct:ignore")
+            .log("Ignoring message because a header row is detected - "+body())
+            .to("file:camel/ignore")
         .when(body().startsWith("EOF PUBLIC"))
-            .log("Ignoring message "+body())
-            .to("direct:ignore")
+            .log("Ignoring message because a footer row is detected"+body())
+            .to("file:camel/ignore")
         .otherwise()
             .to("direct:individual"+datasource_name+"Record");
 

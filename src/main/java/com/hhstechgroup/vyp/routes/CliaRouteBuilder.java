@@ -21,11 +21,16 @@ public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
         final String datasource_name = "clia";
 
         // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individual"+datasource_name+"Record");
+        .choice()
+        .when(body().contains("CITY_NAME"))
+            .log("Ignoring message because a header row is detected - "+body())
+            .to("file:camel/ignore")
+        .otherwise()
+            .to("direct:individual"+datasource_name+"Record");
 
         from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
