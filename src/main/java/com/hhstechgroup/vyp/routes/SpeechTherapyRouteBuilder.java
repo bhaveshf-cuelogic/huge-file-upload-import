@@ -38,14 +38,14 @@ public class SpeechTherapyRouteBuilder extends RouteBuilder implements Idempoten
                 .retryAttemptedLogLevel(LoggingLevel.ERROR)
               )
         .process(new SpeechTherapyRecordProcessor())
-        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
-        .log("Processing msg")
+//        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
+//        .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new SpeechTherapyAggregator())
         .completionSize(50)
         .completionTimeout(5000)
 //        .aggregationRepository(getAggregationRepository())
-        .to("sql:insert into speech_therapy_licenses(name, license_type) values (:#id, :#name)?batch=true")
+        .to("sql:insert into wyoming_speech_therapy_licenses(name, license_type) values (:#id, :#name)?batch=true")
         .end();
     }
 }

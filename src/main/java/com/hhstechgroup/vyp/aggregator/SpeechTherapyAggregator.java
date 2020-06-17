@@ -22,7 +22,7 @@ public class SpeechTherapyAggregator implements AggregationStrategy {
         if (oldExchange == null) { //first iteration
             list = new ArrayList<Map<String, String>>();
             m.put("id", obj.getName());
-            m.put("name", obj.getExpiry_date());
+            m.put("name", obj.getLicense_type());
             list.add(m);
             newIn.setBody(list);
             return newExchange;
@@ -30,7 +30,7 @@ public class SpeechTherapyAggregator implements AggregationStrategy {
             Message in = oldExchange.getIn();
             list = in.getBody(ArrayList.class);
             m.put("id", obj.getName());
-            m.put("name", obj.getExpiry_date());
+            m.put("name", obj.getLicense_type());
             list.add(m);
             return oldExchange;
         }
