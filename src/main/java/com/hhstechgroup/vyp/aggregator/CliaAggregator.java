@@ -23,7 +23,7 @@ public class CliaAggregator implements AggregationStrategy {
         Map<String, String> m = new HashMap<String, String>();
         if (oldExchange == null) { //first iteration
             list = new ArrayList<Map<String, String>>();
-            m.put("id", obj.getPRVDR_CTGRY_SBTYP_CD());
+            m.put("id", obj.getPRVDR_CTGRY_CD());
             m.put("name", obj.getPRVDR_CTGRY_SBTYP_CD());
             list.add(m);
             newIn.setBody(list);
@@ -31,7 +31,7 @@ public class CliaAggregator implements AggregationStrategy {
         } else { //second iteration onwards
             Message in = oldExchange.getIn();
             list = in.getBody(ArrayList.class);
-            m.put("id", obj.getPRVDR_CTGRY_SBTYP_CD());
+            m.put("id", obj.getPRVDR_CTGRY_CD());
             m.put("name", obj.getPRVDR_CTGRY_SBTYP_CD());
             list.add(m);
             return oldExchange;
