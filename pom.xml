@@ -61,6 +61,12 @@
 		    <artifactId>camel-aws-s3</artifactId>
 		    <version>${camel-version}</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.apache.camel</groupId>
+		    <artifactId>camel-mybatis</artifactId>
+		    <version>${camel-version}</version>
+		    <!-- use the same version as your Camel core version -->
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-dbcp2 -->
 		<dependency>
