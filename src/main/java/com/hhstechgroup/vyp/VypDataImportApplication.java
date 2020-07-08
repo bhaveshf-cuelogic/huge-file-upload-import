@@ -45,15 +45,19 @@ public class VypDataImportApplication {
         }
     }
 
-    private static AggregationRepository getAggregationRepository() {
-        // TODO Auto-generated method stub
-        // ideally this repo's DB should be different from business db
-        SingleConnectionDataSource ds = new SingleConnectionDataSource(DB_URL, DB_USER, DB_PASS, true);
-        ds.setAutoCommit(false);
-        DataSourceTransactionManager txManager = new DataSourceTransactionManager(ds);
-        // repositoryName (aggregation) must match tableName (aggregation,
-        // aggregation_completed)
-        JdbcAggregationRepository repo = new JdbcAggregationRepository(txManager, "aggregation", ds);
-        return (AggregationRepository) repo;
-    }
+//    private static AggregationRepository getAggregationRepository() {
+//        // TODO Auto-generated method stub
+//        // ideally this repo's DB should be different from business db
+//        SingleConnectionDataSource ds = new SingleConnectionDataSource(DB_URL, DB_USER, DB_PASS, true);
+//        ds.setAutoCommit(false);
+//        DataSourceTransactionManager txManager = new DataSourceTransactionManager(ds);
+//        // repositoryName (aggregation) must match tableName (aggregation,
+//        // aggregation_completed)
+//        JdbcAggregationRepository repo = new JdbcAggregationRepository(txManager, "aggregation", ds);
+//        repo.setUseRecovery(true);
+//        repo.setMaximumRedeliveries(5);
+//        repo.setDeadLetterUri("direct:trash");
+//        repo.setRecoveryInterval(3000);
+//        return (AggregationRepository) repo;
+//    }
 }

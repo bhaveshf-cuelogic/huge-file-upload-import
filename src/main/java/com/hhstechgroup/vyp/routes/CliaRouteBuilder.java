@@ -1,21 +1,18 @@
 package com.hhstechgroup.vyp.routes;
 
-import java.sql.SQLException;
-
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
+import org.apache.camel.processor.aggregate.jdbc.JdbcAggregationRepository;
+import org.apache.camel.spi.AggregationRepository;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
 import com.hhstechgroup.vyp.aggregator.CliaAggregator;
-import com.hhstechgroup.vyp.aggregator.NpiAggregator;
 import com.hhstechgroup.vyp.model.Clia;
-import com.hhstechgroup.vyp.model.NppesNPI;
 import com.hhstechgroup.vyp.processor.CliaRecordProcessor;
-import com.hhstechgroup.vyp.processor.GenerateFailureResponse;
-import com.hhstechgroup.vyp.processor.NpiRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
 public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
@@ -58,14 +55,43 @@ public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
 //                .retryAttemptedLogLevel(LoggingLevel.ERROR)
 //                )
         .process(new CliaRecordProcessor())
-        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
+//        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
         .unmarshal(bindyObj)
         .aggregate(constant(true), new CliaAggregator())
         .completionSize(50)
-        .completionTimeout(5000)
+        .completionTimeout(2000)
 //        .aggregationRepository(getAggregationRepository())
-        .to("sql:insert into clia(prvdr_ctgry_sbtyp_cd, prvdr_ctgry_cd) values (:#id, :#name)?batch=true")
-//      .to("mybatis:insertAccount?statementType=Insert")
-        .end();
+        .doTry()
+            .to("sql:insert into clia(prvdr_ctgry_sbtyp_cd, prvdr_ctgry_cd) values (:#id, :#name)?batch=true")
+//          .to("mybatis:insertAccount?statementType=Insert")
+        .doCatch(DataIntegrityViolationException.class)
+            .to("direct:dataIntegrityViolatedBatchProcessor")
+        .endDoTry();
+
+        from("direct:dataIntegrityViolatedBatchProcessor")
+        .split(body())
+        .doTry()
+            .to("sql:insert into clia(prvdr_ctgry_sbtyp_cd, prvdr_ctgry_cd) values (:#id, :#name)")
+        .doCatch(DataIntegrityViolationException.class)
+            .to("log:DataIntegrityViolationException raised?level=WARN")
+        .endDoTry();
+    }
+
+    private static AggregationRepository getAggregationRepository() {
+        // TODO Auto-generated method stub
+        // ideally this repo's DB should be different from business db
+        final String DB_URL = "jdbc:postgresql://localhost:5432/bhaveshdb";
+        final String DB_USER = "bhavesh";
+        final String DB_PASS = "password";
+        SingleConnectionDataSource ds = new SingleConnectionDataSource(DB_URL, DB_USER, DB_PASS, true);
+        ds.setAutoCommit(false);
+        DataSourceTransactionManager txManager = new DataSourceTransactionManager(ds);
+        // repositoryName (aggregation) must match tableName (aggregation, aggregation_completed)
+        JdbcAggregationRepository repo = new JdbcAggregationRepository(txManager, "aggregation", ds);
+        repo.setUseRecovery(true);
+        repo.setMaximumRedeliveries(3);
+        repo.setDeadLetterUri("direct:trash");
+        repo.setRecoveryInterval(2000);
+        return (AggregationRepository) repo;
     }
 }
