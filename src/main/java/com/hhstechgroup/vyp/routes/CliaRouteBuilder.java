@@ -21,6 +21,8 @@ public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
     public void configure() throws Exception {
         final DataFormat bindyObj = new BindyCsvDataFormat(Clia.class);
         final String datasource_name = "clia";
+        final String component = "sql";
+        final String database_query = "insert into clia(prvdr_ctgry_sbtyp_cd, prvdr_ctgry_cd) values (:#id, :#name)";
 
         // TODO Auto-generated method stub
         onException(CannotGetJdbcConnectionException.class)
@@ -62,16 +64,16 @@ public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
         .completionTimeout(2000)
 //        .aggregationRepository(getAggregationRepository())
         .doTry()
-            .to("sql:insert into clia(prvdr_ctgry_sbtyp_cd, prvdr_ctgry_cd) values (:#id, :#name)?batch=true")
+            .to(component+":"+database_query+"?batch=true")
 //          .to("mybatis:insertAccount?statementType=Insert")
         .doCatch(DataIntegrityViolationException.class)
-            .to("direct:dataIntegrityViolatedBatchProcessor")
+            .to("direct:"+datasource_name+"dataIntegrityViolatedBatchProcessor")
         .endDoTry();
 
-        from("direct:dataIntegrityViolatedBatchProcessor")
+        from("direct:"+datasource_name+"dataIntegrityViolatedBatchProcessor")
         .split(body())
         .doTry()
-            .to("sql:insert into clia(prvdr_ctgry_sbtyp_cd, prvdr_ctgry_cd) values (:#id, :#name)")
+            .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
             .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();
