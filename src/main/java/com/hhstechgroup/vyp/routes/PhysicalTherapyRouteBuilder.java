@@ -48,7 +48,7 @@ public class PhysicalTherapyRouteBuilder extends RouteBuilder implements Idempot
               )
         .process(new PhysicalTherapyRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
-        .log("Processing msg")
+//        .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new PhysicalTherapyAggregator())
         .completionSize(50)

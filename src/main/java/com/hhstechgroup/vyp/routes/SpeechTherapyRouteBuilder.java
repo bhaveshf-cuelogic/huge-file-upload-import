@@ -41,7 +41,7 @@ public class SpeechTherapyRouteBuilder extends RouteBuilder implements Idempoten
                 .retryAttemptedLogLevel(LoggingLevel.ERROR)
               )
         .process(new SpeechTherapyRecordProcessor())
-//        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
+        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
 //        .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new SpeechTherapyAggregator())

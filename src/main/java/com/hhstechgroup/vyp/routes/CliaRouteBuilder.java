@@ -57,7 +57,7 @@ public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
 //                .retryAttemptedLogLevel(LoggingLevel.ERROR)
 //                )
         .process(new CliaRecordProcessor())
-//        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
+        .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
         .unmarshal(bindyObj)
         .aggregate(constant(true), new CliaAggregator())
         .completionSize(50)

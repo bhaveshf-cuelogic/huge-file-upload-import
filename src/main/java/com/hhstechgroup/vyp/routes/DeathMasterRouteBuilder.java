@@ -19,7 +19,7 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
         final DataFormat bindyObj = new BindyFixedLengthDataFormat(DeathMaster.class);
         final String datasource_name = "death-master";
         final String component = "sql";
-        final String database_query = "insert into dmf() values (:#id, :#name)";
+        final String database_query = "insert into dmf(action, ssn) values (:#id, :#name)";
 
         // TODO Auto-generated method stub
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")

@@ -45,7 +45,7 @@ public class OccupationalTherapyRouteBuilder extends RouteBuilder implements Ide
               )
         .process(new OccupationalTherapyRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
-        .log("Processing msg")
+//        .log("Processing msg")
         .unmarshal(bindyObj)
         .aggregate(constant(true), new OccupationalTherapyAggregator())
         .completionSize(50)
