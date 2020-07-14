@@ -39,12 +39,6 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
 
         from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
-        .errorHandler(
-                defaultErrorHandler()
-                .redeliveryDelay(2000)
-                .maximumRedeliveries(15)
-                .retryAttemptedLogLevel(LoggingLevel.ERROR)
-              )
         .process(new LeieRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
 //        .log("Processing msg")

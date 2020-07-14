@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.fixed.BindyFixedLengthDataFormat;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.DmfAggregator;
 import com.hhstechgroup.vyp.model.DeathMaster;
@@ -21,7 +22,11 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
         final String component = "sql";
         final String database_query = "insert into dmf(action, ssn) values (:#id, :#name)";
 
-        // TODO Auto-generated method stub
+        onException(CannotGetJdbcConnectionException.class)
+            .maximumRedeliveries(10)
+            .redeliveryDelay(2000)
+            .useExponentialBackOff();
+
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
@@ -30,12 +35,6 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
 
         from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
-        .errorHandler(
-                defaultErrorHandler()
-                .redeliveryDelay(2000)
-                .maximumRedeliveries(15)
-                .retryAttemptedLogLevel(LoggingLevel.ERROR)
-              )
         .process(new DmfRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
 //        .log("Processing msg")
