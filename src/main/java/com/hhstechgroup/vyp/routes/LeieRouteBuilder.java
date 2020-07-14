@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.LeieAggregator;
 import com.hhstechgroup.vyp.model.LeieExclusion;
@@ -20,14 +21,23 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
         final String component = "sql";
         final String database_query = "insert into exclusions(lastname, firstname) values (:#id, :#name)";
 
-        // TODO Auto-generated method stub
+        onException(CannotGetJdbcConnectionException.class)
+            .maximumRedeliveries(10)
+            .redeliveryDelay(2000)
+            .useExponentialBackOff();
+
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individua"+datasource_name+"Record");
+        .choice()
+            .when(body().contains("LASTNAME"))
+                .log("Ignoring message because a header row is detected - "+body())
+                .to("direct:trash")
+            .otherwise()
+                .to("direct:individual"+datasource_name+"Record");
 
-        from("direct:individua"+datasource_name+"Record")
+        from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
         .errorHandler(
                 defaultErrorHandler()
