@@ -5,6 +5,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.NpiAggregator;
 import com.hhstechgroup.vyp.aggregator.SamAggregator;
@@ -25,21 +26,33 @@ public class SpeechTherapyRouteBuilder extends RouteBuilder implements Idempoten
         final String component = "sql";
         final String database_query = "insert into wyoming_speech_therapy_licenses(name, license_type) values (:#id, :#name)";
 
-        // TODO Auto-generated method stub
-        from("file:/home/cuelogic.local/bhavesh.furia/camel/input/vyp/"+datasource_name+"/?noop=true")
+        onException(CannotGetJdbcConnectionException.class)
+            .maximumRedeliveries(10)
+            .redeliveryDelay(2000)
+            .useExponentialBackOff();
+
+        from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individual"+datasource_name+"Record");
+        .choice()
+        .when(body().contains("State of Wyoming"))
+            .log("Ignoring message because a ignorable row is detected - "+body())
+            .to("direct:trash")
+        .when(body().contains("Board of Speech"))
+            .log("Ignoring message because a ignorable row is detected - "+body())
+            .to("direct:trash")
+        .when(body().contains("Updated"))
+            .log("Ignoring message because a ignorable row is detected - "+body())
+            .to("direct:trash")
+        .when(body().contains("PROFESSION TYPE"))
+            .log("Ignoring message because a header row is detected - "+body())
+            .to("direct:trash")
+        .otherwise()
+            .to("direct:individual"+datasource_name+"Record");
 
         from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
-        .errorHandler(
-                defaultErrorHandler()
-                .redeliveryDelay(2000)
-                .maximumRedeliveries(15)
-                .retryAttemptedLogLevel(LoggingLevel.ERROR)
-              )
         .process(new SpeechTherapyRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
 //        .log("Processing msg")

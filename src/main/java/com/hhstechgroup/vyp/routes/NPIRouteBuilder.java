@@ -1,10 +1,10 @@
 package com.hhstechgroup.vyp.routes;
 
-import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.NpiAggregator;
 import com.hhstechgroup.vyp.model.NppesNPI;
@@ -21,20 +21,24 @@ public class NPIRouteBuilder extends RouteBuilder implements Idempotentable {
         final String database_query = "insert into nppes_npi(npi, provider_first_name) values (:#id, :#name)";
 
         // TODO Auto-generated method stub
+        onException(CannotGetJdbcConnectionException.class)
+            .maximumRedeliveries(10)
+            .redeliveryDelay(2000)
+            .useExponentialBackOff();
+
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
         .streaming()
-        .to("direct:individual"+datasource_name+"Record");
+        .choice()
+        .when(body().contains("Entity Type Code"))
+            .log("Ignoring message because a header row is detected - "+body())
+            .to("direct:trash")
+        .otherwise()
+            .to("direct:individual"+datasource_name+"Record");
 
         from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
-        .errorHandler(
-                defaultErrorHandler()
-                .redeliveryDelay(2000)
-                .maximumRedeliveries(15)
-                .retryAttemptedLogLevel(LoggingLevel.ERROR)
-              )
         .process(new NpiRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
 //        .log("Processing msg")
