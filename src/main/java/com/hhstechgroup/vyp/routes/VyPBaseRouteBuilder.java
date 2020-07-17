@@ -16,6 +16,8 @@ public class VyPBaseRouteBuilder extends RouteBuilder {
             .redeliveryDelay(2000)
             .useExponentialBackOff();
 
+        errorHandler(deadLetterChannel("direct:dlq"));
+
         from("direct:trash")
         .process(new Processor() {
             @Override
@@ -27,6 +29,23 @@ public class VyPBaseRouteBuilder extends RouteBuilder {
                 System.out.println("Trash mg Body-----------------"+m.getBody());
             }
         })
+        .stop();
+
+        from("direct:dlq")
+        .process(new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                // TODO Auto-generated method stub
+                Message msg = exchange.getIn();
+                Exception e = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+                exchange.getIn().setBody(
+                        "Message : "+ msg +
+                        " Message Body : "+ msg.getBody() +
+                        " Exception : " + e.toString()
+                        );
+            }
+        })
+        .to("log:Message came in DLQ?level=WARN")
         .stop();
     }
 
