@@ -27,15 +27,15 @@ public class VypDataImportApplication {
     public static void main(String[] args) throws Exception {
         final CamelContext camel = new DefaultCamelContext();
         camel.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
-        camel.addRoutes(new TrashRouteBuilder()); // working
-        camel.addRoutes(new LeieRouteBuilder()); // working
-        camel.addRoutes(new DeathMasterRouteBuilder()); // working
-        camel.addRoutes(new NPIRouteBuilder()); // working
-        camel.addRoutes(new CliaRouteBuilder()); // working but skip the header row
-        camel.addRoutes(new SamRouteBuilder()); // working
-        camel.addRoutes(new SpeechTherapyRouteBuilder()); // working - find a better way to escape first few lines
-        camel.addRoutes(new OccupationalTherapyRouteBuilder()); // working - find a better way to escape first few lines
-        camel.addRoutes(new PhysicalTherapyRouteBuilder()); // working - find a better way to escape first few lines
+        camel.addRoutes(new TrashRouteBuilder());
+        camel.addRoutes(new LeieRouteBuilder());
+        camel.addRoutes(new DeathMasterRouteBuilder());
+        camel.addRoutes(new NPIRouteBuilder());
+        camel.addRoutes(new CliaRouteBuilder());
+        camel.addRoutes(new SamRouteBuilder());
+        camel.addRoutes(new SpeechTherapyRouteBuilder());
+        camel.addRoutes(new OccupationalTherapyRouteBuilder());
+        camel.addRoutes(new PhysicalTherapyRouteBuilder());
 
         DriverManagerDataSource ds = new DriverManagerDataSource(DB_URL, DB_USER, DB_PASS);
         ds.setDriverClassName(DB_DRIVER_CLASS_NAME);

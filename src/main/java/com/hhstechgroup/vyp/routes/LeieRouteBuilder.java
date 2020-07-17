@@ -9,7 +9,7 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.LeieAggregator;
 import com.hhstechgroup.vyp.model.LeieExclusion;
-import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
+import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.LeieRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
@@ -60,7 +60,7 @@ public class LeieRouteBuilder extends RouteBuilder implements Idempotentable {
         .doTry()
             .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
-            .process(new DLQMessageDecoratorProcessor())
+            .process(new DataIntegrityFailedMessageDecoratorProcessor())
             .to("kafka:test?brokers=localhost:9092")
 //        .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();

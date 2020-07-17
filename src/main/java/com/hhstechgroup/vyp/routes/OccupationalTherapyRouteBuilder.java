@@ -14,7 +14,7 @@ import com.hhstechgroup.vyp.aggregator.SpeechTherapyAggregator;
 import com.hhstechgroup.vyp.model.NppesNPI;
 import com.hhstechgroup.vyp.model.TherapyOccupational;
 import com.hhstechgroup.vyp.model.TherapySpeech;
-import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
+import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.NpiRecordProcessor;
 import com.hhstechgroup.vyp.processor.OccupationalTherapyRecordProcessor;
 import com.hhstechgroup.vyp.processor.SamRecordProcessor;
@@ -81,7 +81,7 @@ public class OccupationalTherapyRouteBuilder extends RouteBuilder implements Ide
         .doTry()
             .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
-            .process(new DLQMessageDecoratorProcessor())
+            .process(new DataIntegrityFailedMessageDecoratorProcessor())
             .to("kafka:test?brokers=localhost:9092")
 //        .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();

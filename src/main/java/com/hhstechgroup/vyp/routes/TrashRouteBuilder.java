@@ -16,16 +16,11 @@ public class TrashRouteBuilder extends RouteBuilder {
             public void process(Exchange exchange) throws Exception {
                 // TODO Auto-generated method stub
                 Message m = exchange.getIn();
-                System.out.println("Trash class------------"+m.getClass());
-                System.out.println("Trash toString----------"+m.toString());
-                System.out.println("Trash Body-----------------"+m.getBody());
+                System.out.println("Trash msg Class------------"+m.getClass());
+                System.out.println("Trash msg toString----------"+m.toString());
+                System.out.println("Trash mg Body-----------------"+m.getBody());
             }
         })
         .stop();
-
-//        from("direct:dlq")
-//        .to("log:DLQMessage?level=ERROR")
-//        .stop();
     }
-
 }

@@ -9,7 +9,7 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.DmfAggregator;
 import com.hhstechgroup.vyp.model.DeathMaster;
-import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
+import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.DmfRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
@@ -56,7 +56,7 @@ public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotenta
         .doTry()
             .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
-            .process(new DLQMessageDecoratorProcessor())
+            .process(new DataIntegrityFailedMessageDecoratorProcessor())
             .to("kafka:test?brokers=localhost:9092")
 //            .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();

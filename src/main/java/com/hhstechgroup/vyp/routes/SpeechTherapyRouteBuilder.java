@@ -12,7 +12,7 @@ import com.hhstechgroup.vyp.aggregator.SamAggregator;
 import com.hhstechgroup.vyp.aggregator.SpeechTherapyAggregator;
 import com.hhstechgroup.vyp.model.NppesNPI;
 import com.hhstechgroup.vyp.model.TherapySpeech;
-import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
+import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.NpiRecordProcessor;
 import com.hhstechgroup.vyp.processor.SamRecordProcessor;
 import com.hhstechgroup.vyp.processor.SpeechTherapyRecordProcessor;
@@ -74,7 +74,7 @@ public class SpeechTherapyRouteBuilder extends RouteBuilder implements Idempoten
         .doTry()
             .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
-            .process(new DLQMessageDecoratorProcessor())
+            .process(new DataIntegrityFailedMessageDecoratorProcessor())
             .to("kafka:test?brokers=localhost:9092")
 //          .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();
