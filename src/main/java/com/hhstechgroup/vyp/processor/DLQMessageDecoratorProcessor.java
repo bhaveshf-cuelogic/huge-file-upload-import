@@ -11,7 +11,7 @@ public class DLQMessageDecoratorProcessor implements Processor {
         // TODO Auto-generated method stub
         Message m = exchange.getIn();
         System.out.println("Message = " + m + "-----Body-----" + m.getBody() + "------MessageId---------" + m.getMessageId());
-        exchange.getIn().setBody("File name : "+ m + " Erronous row data : "+ m.getBody());
+        exchange.getIn().setBody("File name : "+ m + " Erroneous row data : "+ m.getBody());
     }
 
 }
