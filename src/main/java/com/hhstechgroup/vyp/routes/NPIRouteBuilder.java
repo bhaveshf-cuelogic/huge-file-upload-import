@@ -8,6 +8,7 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.NpiAggregator;
 import com.hhstechgroup.vyp.model.NppesNPI;
+import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.NpiRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
@@ -59,7 +60,9 @@ public class NPIRouteBuilder extends RouteBuilder implements Idempotentable {
         .doTry()
             .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
-            .to("log:DataIntegrityViolationException raised?level=WARN")
+            .process(new DLQMessageDecoratorProcessor())
+            .to("kafka:test?brokers=localhost:9092")
+//        .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();
     }
 }

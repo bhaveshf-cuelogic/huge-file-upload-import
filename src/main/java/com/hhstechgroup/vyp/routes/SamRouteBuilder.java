@@ -9,6 +9,7 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.SamAggregator;
 import com.hhstechgroup.vyp.model.SAM;
+import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.SamRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
@@ -62,7 +63,9 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
         .doTry()
             .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
-            .to("log:DataIntegrityViolationException raised?level=WARN")
+            .process(new DLQMessageDecoratorProcessor())
+            .to("kafka:test?brokers=localhost:9092")
+//        .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();
     }
 }

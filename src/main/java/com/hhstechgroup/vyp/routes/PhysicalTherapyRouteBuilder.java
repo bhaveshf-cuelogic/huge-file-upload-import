@@ -16,6 +16,7 @@ import com.hhstechgroup.vyp.model.NppesNPI;
 import com.hhstechgroup.vyp.model.TherapyOccupational;
 import com.hhstechgroup.vyp.model.TherapyPhysical;
 import com.hhstechgroup.vyp.model.TherapySpeech;
+import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.NpiRecordProcessor;
 import com.hhstechgroup.vyp.processor.OccupationalTherapyRecordProcessor;
 import com.hhstechgroup.vyp.processor.PhysicalTherapyRecordProcessor;
@@ -70,7 +71,9 @@ public class PhysicalTherapyRouteBuilder extends RouteBuilder implements Idempot
         .doTry()
             .to(component+":"+database_query)
         .doCatch(DataIntegrityViolationException.class)
-            .to("log:DataIntegrityViolationException raised?level=WARN")
+            .process(new DLQMessageDecoratorProcessor())
+            .to("kafka:test?brokers=localhost:9092")
+    //        .to("log:DataIntegrityViolationException raised?level=WARN")
         .endDoTry();
     }
 }
