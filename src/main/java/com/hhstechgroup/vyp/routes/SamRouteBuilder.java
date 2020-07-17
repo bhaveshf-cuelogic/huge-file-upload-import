@@ -4,9 +4,12 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.spi.DataFormat;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.SamAggregator;
 import com.hhstechgroup.vyp.model.SAM;
+import com.hhstechgroup.vyp.processor.DLQMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.processor.SamRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
@@ -16,8 +19,14 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
     public void configure() throws Exception {
         final DataFormat bindyObj = new BindyCsvDataFormat(SAM.class);
         final String datasource_name = "sam";
+        final String component = "sql";
+        final String database_query = "insert into sam(duns, duns_plus_4) values (:#id, :#name)";
 
-        // TODO Auto-generated method stub
+        onException(CannotGetJdbcConnectionException.class)
+            .maximumRedeliveries(10)
+            .redeliveryDelay(2000)
+            .useExponentialBackOff();
+
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
@@ -34,12 +43,6 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
 
         from("direct:individual"+datasource_name+"Record")
         .routeId("individual"+datasource_name+"RowRecord")
-        .errorHandler(
-                defaultErrorHandler()
-                .redeliveryDelay(2000)
-                .maximumRedeliveries(15)
-                .retryAttemptedLogLevel(LoggingLevel.ERROR)
-              )
         .process(new SamRecordProcessor())
         .idempotentConsumer(header("msgHash"), getIdempotentRepository(datasource_name))
 //        .log("Processing msg")
@@ -48,7 +51,21 @@ public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
         .completionSize(50)
         .completionTimeout(5000)
 //        .aggregationRepository(getAggregationRepository())
-        .to("sql:insert into sam(duns, duns_plus_4) values (:#id, :#name)?batch=true")
-        .end();
+        .doTry()
+            .to(component+":"+database_query+"?batch=true")
+    //      .to("mybatis:insertAccount?statementType=Insert")
+        .doCatch(DataIntegrityViolationException.class)
+            .to("direct:"+datasource_name+"dataIntegrityViolatedBatchProcessor")
+        .endDoTry();
+
+        from("direct:"+datasource_name+"dataIntegrityViolatedBatchProcessor")
+        .split(body())
+        .doTry()
+            .to(component+":"+database_query)
+        .doCatch(DataIntegrityViolationException.class)
+            .process(new DLQMessageDecoratorProcessor())
+            .to("kafka:test?brokers=localhost:9092")
+//        .to("log:DataIntegrityViolationException raised?level=WARN")
+        .endDoTry();
     }
 }

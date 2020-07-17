@@ -33,9 +33,9 @@ public class VypDataImportApplication {
         camel.addRoutes(new NPIRouteBuilder()); // working
         camel.addRoutes(new CliaRouteBuilder()); // working but skip the header row
         camel.addRoutes(new SamRouteBuilder()); // working
-        camel.addRoutes(new SpeechTherapyRouteBuilder()); // working - escape top 3-5 lines before processing
-        camel.addRoutes(new OccupationalTherapyRouteBuilder()); // working but few records didn't go to DB - escape top 3-5 lines before processing
-        camel.addRoutes(new PhysicalTherapyRouteBuilder()); // working but few records didn't go to DB - escape top 3-5 lines before processing
+        camel.addRoutes(new SpeechTherapyRouteBuilder()); // working - find a better way to escape first few lines
+        camel.addRoutes(new OccupationalTherapyRouteBuilder()); // working - find a better way to escape first few lines
+        camel.addRoutes(new PhysicalTherapyRouteBuilder()); // working - find a better way to escape first few lines
 
         DriverManagerDataSource ds = new DriverManagerDataSource(DB_URL, DB_USER, DB_PASS);
         ds.setDriverClassName(DB_DRIVER_CLASS_NAME);
@@ -54,6 +54,10 @@ public class VypDataImportApplication {
         // repositoryName (aggregation) must match tableName (aggregation,
         // aggregation_completed)
         JdbcAggregationRepository repo = new JdbcAggregationRepository(txManager, "aggregation", ds);
+        repo.setUseRecovery(true);
+        repo.setMaximumRedeliveries(5);
+        repo.setDeadLetterUri("direct:trash");
+        repo.setRecoveryInterval(3000);
         return (AggregationRepository) repo;
     }
 }

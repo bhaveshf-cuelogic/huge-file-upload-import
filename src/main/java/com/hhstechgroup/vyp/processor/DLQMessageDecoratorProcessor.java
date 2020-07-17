@@ -4,17 +4,14 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 
-import com.hhstechgroup.vyp.utility.MD5Hashable;
-
-public class CliaRecordProcessor implements Processor, MD5Hashable {
+public class DLQMessageDecoratorProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) throws Exception {
         // TODO Auto-generated method stub
         Message m = exchange.getIn();
-        System.out.println("Message = "+m);
-        String body = m.getBody(String.class);
-        m.setHeader("msgHash", generateMD5Digest(body.toString()));
+        System.out.println("Message = " + m + "-----Body-----" + m.getBody() + "------MessageId---------" + m.getMessageId());
+        exchange.getIn().setBody("File name : "+ m + " Erroneous row data : "+ m.getBody());
     }
 
 }

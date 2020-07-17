@@ -21,16 +21,16 @@ public class DmfAggregator implements AggregationStrategy {
         Map<String, String> m = new HashMap<String, String>();
         if (oldExchange == null) { // first iteration
             list = new ArrayList<Map<String, String>>();
-            m.put("id", obj.getLast_name());
-            m.put("name", obj.getFirst_name());
+            m.put("id", obj.getAction());
+            m.put("name", obj.getSsn());
             list.add(m);
             newIn.setBody(list);
             return newExchange;
         } else { // second iteration onwards
             Message in = oldExchange.getIn();
             list = in.getBody(ArrayList.class);
-            m.put("id", obj.getLast_name());
-            m.put("name", obj.getFirst_name());
+            m.put("id", obj.getAction());
+            m.put("name", obj.getSsn());
             list.add(m);
             return oldExchange;
         }
