@@ -18,19 +18,15 @@ import com.hhstechgroup.vyp.processor.SamRecordProcessor;
 import com.hhstechgroup.vyp.processor.SpeechTherapyRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
-public class SpeechTherapyRouteBuilder extends RouteBuilder implements Idempotentable {
+public class SpeechTherapyRouteBuilder extends VyPBaseRouteBuilder implements Idempotentable {
 
     @Override
     public void configure() throws Exception {
+        super.configure();
         final DataFormat bindyObj = new BindyCsvDataFormat(TherapySpeech.class);
         final String datasource_name = "speech-therapy";
         final String component = "sql";
         final String database_query = "insert into wyoming_speech_therapy_licenses(name, license_type) values (:#id, :#name)";
-
-        onException(CannotGetJdbcConnectionException.class)
-            .maximumRedeliveries(10)
-            .redeliveryDelay(2000)
-            .useExponentialBackOff();
 
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")

@@ -13,19 +13,15 @@ import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcess
 import com.hhstechgroup.vyp.processor.SamRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
-public class SamRouteBuilder extends RouteBuilder implements Idempotentable {
+public class SamRouteBuilder extends VyPBaseRouteBuilder implements Idempotentable {
 
     @Override
     public void configure() throws Exception {
+        super.configure();
         final DataFormat bindyObj = new BindyCsvDataFormat(SAM.class);
         final String datasource_name = "sam";
         final String component = "sql";
         final String database_query = "insert into sam(duns, duns_plus_4) values (:#id, :#name)";
-
-        onException(CannotGetJdbcConnectionException.class)
-            .maximumRedeliveries(10)
-            .redeliveryDelay(2000)
-            .useExponentialBackOff();
 
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")

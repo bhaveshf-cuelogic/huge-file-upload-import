@@ -1,11 +1,8 @@
 package com.hhstechgroup.vyp.routes;
 
-import org.apache.camel.LoggingLevel;
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.fixed.BindyFixedLengthDataFormat;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
 import com.hhstechgroup.vyp.aggregator.DmfAggregator;
 import com.hhstechgroup.vyp.model.DeathMaster;
@@ -13,20 +10,16 @@ import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcess
 import com.hhstechgroup.vyp.processor.DmfRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
-public class DeathMasterRouteBuilder extends RouteBuilder implements Idempotentable {
+public class DeathMasterRouteBuilder extends VyPBaseRouteBuilder implements Idempotentable {
 
     @Override
     public void configure() throws Exception {
         // TODO Auto-generated method stub
+        super.configure();
         final DataFormat bindyObj = new BindyFixedLengthDataFormat(DeathMaster.class);
         final String datasource_name = "death-master";
         final String component = "sql";
         final String database_query = "insert into dmf(action, ssn) values (:#id, :#name)";
-
-        onException(CannotGetJdbcConnectionException.class)
-            .maximumRedeliveries(10)
-            .redeliveryDelay(2000)
-            .useExponentialBackOff();
 
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")

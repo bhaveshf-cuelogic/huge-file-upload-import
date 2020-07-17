@@ -4,12 +4,18 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 
-public class TrashRouteBuilder extends RouteBuilder {
+public class VyPBaseRouteBuilder extends RouteBuilder {
 
     @Override
     public void configure() throws Exception {
         // TODO Auto-generated method stub
+        onException(CannotGetJdbcConnectionException.class)
+            .maximumRedeliveries(10)
+            .redeliveryDelay(2000)
+            .useExponentialBackOff();
+
         from("direct:trash")
         .process(new Processor() {
             @Override
@@ -23,4 +29,5 @@ public class TrashRouteBuilder extends RouteBuilder {
         })
         .stop();
     }
+
 }

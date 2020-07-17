@@ -21,20 +21,15 @@ import com.hhstechgroup.vyp.processor.SamRecordProcessor;
 import com.hhstechgroup.vyp.processor.SpeechTherapyRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
-public class OccupationalTherapyRouteBuilder extends RouteBuilder implements Idempotentable {
+public class OccupationalTherapyRouteBuilder extends VyPBaseRouteBuilder implements Idempotentable {
 
     @Override
     public void configure() throws Exception {
+        super.configure();
         final DataFormat bindyObj = new BindyCsvDataFormat(TherapyOccupational.class);
         final String datasource_name = "occupational-therapy";
         final String component = "sql";
         final String database_query = "insert into wyoming_occupational_therapy_licenses(last_name, first_name) values (:#id, :#name)";
-
-        // TODO Auto-generated method stub
-        onException(CannotGetJdbcConnectionException.class)
-            .maximumRedeliveries(10)
-            .redeliveryDelay(2000)
-            .useExponentialBackOff();
 
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")

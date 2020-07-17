@@ -12,20 +12,15 @@ import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcess
 import com.hhstechgroup.vyp.processor.NpiRecordProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
-public class NPIRouteBuilder extends RouteBuilder implements Idempotentable {
+public class NPIRouteBuilder extends VyPBaseRouteBuilder implements Idempotentable {
 
     @Override
     public void configure() throws Exception {
+        super.configure();
         final DataFormat bindyObj = new BindyCsvDataFormat(NppesNPI.class);
         final String datasource_name = "nppes-npi";
         final String component = "sql";
         final String database_query = "insert into nppes_npi(npi, provider_first_name) values (:#id, :#name)";
-
-        // TODO Auto-generated method stub
-        onException(CannotGetJdbcConnectionException.class)
-            .maximumRedeliveries(10)
-            .redeliveryDelay(2000)
-            .useExponentialBackOff();
 
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")

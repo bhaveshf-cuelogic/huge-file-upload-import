@@ -16,7 +16,6 @@ import com.hhstechgroup.vyp.routes.OccupationalTherapyRouteBuilder;
 import com.hhstechgroup.vyp.routes.PhysicalTherapyRouteBuilder;
 import com.hhstechgroup.vyp.routes.SamRouteBuilder;
 import com.hhstechgroup.vyp.routes.SpeechTherapyRouteBuilder;
-import com.hhstechgroup.vyp.routes.TrashRouteBuilder;
 
 public class VypDataImportApplication {
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/bhaveshdb";
@@ -27,7 +26,6 @@ public class VypDataImportApplication {
     public static void main(String[] args) throws Exception {
         final CamelContext camel = new DefaultCamelContext();
         camel.getShutdownStrategy().setShutdownRoutesInReverseOrder(true);
-        camel.addRoutes(new TrashRouteBuilder());
         camel.addRoutes(new LeieRouteBuilder());
         camel.addRoutes(new DeathMasterRouteBuilder());
         camel.addRoutes(new NPIRouteBuilder());

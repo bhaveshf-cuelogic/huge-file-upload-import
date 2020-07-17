@@ -1,12 +1,10 @@
 package com.hhstechgroup.vyp.routes;
 
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.dataformat.bindy.csv.BindyCsvDataFormat;
 import org.apache.camel.processor.aggregate.jdbc.JdbcAggregationRepository;
 import org.apache.camel.spi.AggregationRepository;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 
@@ -16,21 +14,17 @@ import com.hhstechgroup.vyp.processor.CliaRecordProcessor;
 import com.hhstechgroup.vyp.processor.DataIntegrityFailedMessageDecoratorProcessor;
 import com.hhstechgroup.vyp.utility.Idempotentable;
 
-public class CliaRouteBuilder extends RouteBuilder implements Idempotentable {
+public class CliaRouteBuilder extends VyPBaseRouteBuilder implements Idempotentable {
 
     @Override
     public void configure() throws Exception {
+        super.configure();
         final DataFormat bindyObj = new BindyCsvDataFormat(Clia.class);
         final String datasource_name = "clia";
         final String component = "sql";
         final String database_query = "insert into clia(prvdr_ctgry_sbtyp_cd, prvdr_ctgry_cd) values (:#id, :#name)";
 
         // TODO Auto-generated method stub
-        onException(CannotGetJdbcConnectionException.class)
-            .maximumRedeliveries(10)
-            .redeliveryDelay(2000)
-            .useExponentialBackOff();
-
         from("file:camel/input/vyp/"+datasource_name+"/?noop=true")
         .routeId("fileMessageFrom"+datasource_name+"Folder")
         .split(body().tokenize("\n"))
