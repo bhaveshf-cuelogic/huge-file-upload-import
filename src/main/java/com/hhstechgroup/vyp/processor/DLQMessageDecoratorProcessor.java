@@ -9,9 +9,13 @@ public class DLQMessageDecoratorProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
         // TODO Auto-generated method stub
-        Message m = exchange.getIn();
-        System.out.println("Message = " + m + "-----Body-----" + m.getBody() + "------MessageId---------" + m.getMessageId());
-        exchange.getIn().setBody("File name : "+ m + " Erroneous row data : "+ m.getBody());
+        Message msg = exchange.getIn();
+        Exception e = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class);
+        exchange.getIn().setBody(
+                "File name : "+ msg +
+                "\nErroneous row data : "+ msg.getBody() +
+                "\nException : " + e.toString()
+                );
     }
 
 }
